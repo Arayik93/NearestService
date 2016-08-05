@@ -19,6 +19,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -37,15 +38,22 @@ public class MainActivity extends FragmentActivity
 
 
     private GoogleMap mMap;
-    LatLng sydney;
-    LinearLayout linearLayout;
+    private LatLng sydney;
+    private LinearLayout mapFragmentlinearLayout;
+    //private FrameLayout addFragmentLinearLayout;
+    private Fragment addServiceFragment;
+    private android.support.v7.widget.Toolbar tb;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        linearLayout = (LinearLayout) findViewById(R.id.layout_for_map_Fragment);
+        mapFragmentlinearLayout = (LinearLayout) findViewById(R.id.layout_for_map_Fragment);
+        //addFragmentLinearLayout = (FrameLayout) findViewById(R.id.frameLayout_for_addServiceFragment);
+        addServiceFragment = new AddServiceFragment();
+        tb = (Toolbar)findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -108,15 +116,8 @@ public class MainActivity extends FragmentActivity
         if (id == R.id.nav_camera) {
             //startActivity(new Intent(MainActivity.this, AddServiceActivity.class));
 
-            linearLayout.setVisibility(View.GONE);
-            Fragment addServiceFragment = new AddServiceFragment();
-
-
-            FragmentManager fragmentManager = getFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.frameLayout_for_addServiceFragment, addServiceFragment);
-
-            fragmentTransaction.commit();
+            tb.setVisibility(View.GONE);
+            changeMapToAdd();
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
             Intent i = new Intent(MainActivity.this, MapLocationActivity.class);
@@ -201,13 +202,30 @@ public class MainActivity extends FragmentActivity
 
     }
 
+    private void changeMapToAdd(){
+        mapFragmentlinearLayout.setVisibility(View.GONE);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.frameLayout_for_addServiceFragment, addServiceFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void changeAdToMap(){
+        tb.setVisibility(View.VISIBLE);
+        mapFragmentlinearLayout.setVisibility(View.VISIBLE);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.remove(addServiceFragment);
+        fragmentTransaction.commit();
+    }
+
     @Override
     public void cancelButonOnAddFragmentPressed() {
-
+        changeAdToMap();
     }
 
     @Override
     public void addButonOnAddFragmentPressed() {
-
+        changeAdToMap();
     }
 }
