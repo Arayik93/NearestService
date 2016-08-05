@@ -8,8 +8,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 
+import example.com.nearestservice.Activities.MainActivity;
 import example.com.nearestservice.R;
+import example.com.nearestservice.Service;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,6 +29,7 @@ import example.com.nearestservice.R;
 public class AddServiceFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    Service s;
     private OnFragmentInteractionListener mOnFragmentInteractionListener;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -78,10 +86,16 @@ public class AddServiceFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        final EditText serviceName_edt = (EditText) view.findViewById(R.id.AddFragmentServiceName);
+        final Spinner serviceCategory_edt = (Spinner) view.findViewById(R.id.AddFragmentServiceSpinner);
+        final EditText serviceDescription_edt = (EditText) view.findViewById(R.id.AddFragmentServiceDescriptione);
+        final EditText serviceAddress_edt = (EditText) view.findViewById(R.id.AddFragmentServiceAddres);
+
+
         view.findViewById(R.id.button_cancel_activityAddService).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("TAG","clicked");
                 mOnFragmentInteractionListener.cancelButonOnAddFragmentPressed();
 
             }
@@ -90,6 +104,36 @@ public class AddServiceFragment extends Fragment {
         view.findViewById(R.id.button_save_activityAddService).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //Realm realm = MainActivity.realm;
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+
+                RealmResults rel = realm.where(Service.class).findAll();
+
+                int id = 1;
+
+                if (rel.size() != 0) {
+                    Service s = (Service) rel.last();
+                    id = s.getId() + 1;
+                }
+
+
+                s = new Service();
+                s.setId(id);
+
+                s.setRating(0);
+                s.setName(serviceName_edt.getText().toString());
+                s.setAddress(serviceAddress_edt.getText().toString());
+                s.setCategory(serviceCategory_edt.getSelectedItem().toString());
+                s.setDescription(serviceDescription_edt.getText().toString());
+
+
+                realm.copyToRealm(s);
+
+                //realm.copyToRealmOrUpdate(u);//esi karanq nuyn id-n tanq update anenq
+
+                realm.commitTransaction();
                 mOnFragmentInteractionListener.addButonOnAddFragmentPressed();
 
             }
@@ -134,6 +178,7 @@ public class AddServiceFragment extends Fragment {
         // TODO: Update argument type and name
         //void onFragmentInteraction(Uri uri);
         void cancelButonOnAddFragmentPressed();
+
         void addButonOnAddFragmentPressed();
     }
 }

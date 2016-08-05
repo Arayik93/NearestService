@@ -1,54 +1,83 @@
 package example.com.nearestservice;
 
+import android.support.annotation.Nullable;
+
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by Abov on 8/5/2016.
  */
-/*public class Service extends RealmObject {
+public class Service extends RealmObject {
 
-    @Nullable
+    private String Name;
+    private String Category;
+    private String Description;
+    private String Address;
+    private int Rating;
+    @PrimaryKey
     private int id;
-    private String mName;
-    private String mCategory;
-    private String mDescription;
-    private String mAddress;
-    private int mRating;
+
 
 
     public Service() {
     }
 
 
-    public Service(int id, String name, String category, String description, String address, int rating) {
+    public Service(String name, String category, String description, String address, int rating, int id) {
+        Name = name;
+        Category = category;
+        Description = description;
+        Address = address;
+        Rating = rating;
         this.id = id;
-        mName = name;
-        mCategory = category;
-        mDescription = description;
-        mAddress = address;
-        mRating = rating;
     }
 
-    @Nullable
+    public String getName() {
+        return Name;
+    }
+
+    public void setName(String name) {
+        Name = name;
+    }
+
+    public String getCategory() {
+        return Category;
+    }
+
+    public void setCategory(String category) {
+        Category = category;
+    }
+
+    public String getDescription() {
+        return Description;
+    }
+
+    public void setDescription(String description) {
+        Description = description;
+    }
+
+    public String getAddress() {
+        return Address;
+    }
+
+    public void setAddress(String address) {
+        Address = address;
+    }
+
+    public int getRating() {
+        return Rating;
+    }
+
+    public void setRating(int rating) {
+        Rating = rating;
+    }
+
     public int getId() {
         return id;
     }
 
-    public String getName() {
-        return mName;
+    public void setId(int id) {
+        this.id = id;
     }
-
-    public String getCategory() {
-        return mCategory;
-    }
-
-    public String getDescription() {
-        return mDescription;
-    }
-
-    public String getAddress() {
-        return mAddress;
-    }
-
-    public int getRating() {
-        return mRating;
-    }
-}*/
+}

@@ -8,25 +8,27 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/editText"
+        android:id="@+id/AddFragmentServiceName"
         android:layout_marginTop="10dp"/>
 
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/spinner"
+        android:id="@+id/AddFragmentServiceSpinner"
+        android:drawSelectorOnTop="true"
+        android:entries="@array/spinnerItems"
         android:layout_marginTop="10dp"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/editText2"
+        android:id="@+id/AddFragmentServiceDescriptione"
         android:layout_marginTop="10dp"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/editText3"
+        android:id="@+id/AddFragmentServiceAddres"
         android:layout_marginTop="10dp"/>
 
     <LinearLayout

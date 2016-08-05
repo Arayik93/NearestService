@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,34 +27,60 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
+
 import example.com.nearestservice.Fragments.AddServiceFragment;
 import example.com.nearestservice.R;
+import example.com.nearestservice.Service;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 public class MainActivity extends FragmentActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, AddServiceFragment.OnFragmentInteractionListener {
 
 
+    public static Realm realm;
+
     private GoogleMap mMap;
-    private LatLng sydney;
+    //private LatLng sydney;
     private LinearLayout mapFragmentlinearLayout;
     //private FrameLayout addFragmentLinearLayout;
     private Fragment addServiceFragment;
     private android.support.v7.widget.Toolbar tb;
 
+    List a;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this).build();
+        Realm.setDefaultConfiguration(realmConfiguration);
+        realm = Realm.getDefaultInstance();
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+
         mapFragmentlinearLayout = (LinearLayout) findViewById(R.id.layout_for_map_Fragment);
         //addFragmentLinearLayout = (FrameLayout) findViewById(R.id.frameLayout_for_addServiceFragment);
         addServiceFragment = new AddServiceFragment();
-        tb = (Toolbar)findViewById(R.id.toolbar);
+        tb = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -73,7 +100,10 @@ public class MainActivity extends FragmentActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
     }
+
 
     @Override
     public void onBackPressed() {
@@ -124,12 +154,18 @@ public class MainActivity extends FragmentActivity
             startActivity(i);
 
         } else if (id == R.id.nav_slideshow) {
+            writeInDB();
+            readServicesFromDB();
+            setServicesPositions(a);
 
         } else if (id == R.id.nav_manage) {
 
+
         } else if (id == R.id.nav_share) {
 
+
         } else if (id == R.id.nav_send) {
+
 
         }
 
@@ -140,19 +176,10 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        // mMap = googleMap;
 
-        mMap = googleMap;
 
-
-        // Add a marker in Sydney and move the camera
-
-        /*sydney = new LatLng(-34, 151);
-
-        mMap.addMarker(new MarkerOptions().position(sydney).
-                title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
-
-        LatLng sydney = new LatLng(-33.867, 151.206);
+        // LatLng sydney = new LatLng(-33.867, 151.206);
 
 
         if (mMap == null) {
@@ -170,6 +197,7 @@ public class MainActivity extends FragmentActivity
                 }
             }
 
+
             if (mMap != null) {
 
 
@@ -180,7 +208,7 @@ public class MainActivity extends FragmentActivity
                         // TODO Auto-generated method stub
 
                         CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
-                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
 
                         mMap.moveCamera(center);
                         mMap.animateCamera(zoom);
@@ -191,18 +219,18 @@ public class MainActivity extends FragmentActivity
         }
 
 
-        mMap.setMyLocationEnabled(true);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
+        // mMap.setMyLocationEnabled(true);
+        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
 
-        mMap.addMarker(new MarkerOptions()
+        /*mMap.addMarker(new MarkerOptions()
                 .title("Sydney")
                 .snippet("The most populous city in Australia.")
-                .position(sydney));
+                .position(sydney));*/
 
 
     }
 
-    private void changeMapToAdd(){
+    private void changeMapToAdd() {
         mapFragmentlinearLayout.setVisibility(View.GONE);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -210,7 +238,40 @@ public class MainActivity extends FragmentActivity
         fragmentTransaction.commit();
     }
 
-    private void changeAdToMap(){
+    private void writeInDB() {
+        //
+    }
+
+    private void readServicesFromDB() {
+        realm.beginTransaction();
+
+        RealmResults rel = realm.where(Service.class).findAll();
+        a = rel;
+        realm.commitTransaction();
+
+    }
+
+    int i = 0;
+
+    private void setServicesPositions(List<Service> l) {
+
+
+        for (Service s : l) {
+
+            i += 1;
+            LatLng latLng = new LatLng(40 + i, 44 + i);
+            mMap.addMarker(new MarkerOptions().position(latLng).
+                    title(s.getName()));
+
+        }
+
+
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+
+    }
+
+    private void changeAdToMap() {
         tb.setVisibility(View.VISIBLE);
         mapFragmentlinearLayout.setVisibility(View.VISIBLE);
         FragmentManager fragmentManager = getFragmentManager();
