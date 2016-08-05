@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import example.com.nearestservice.R;
 public class AddServiceFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private OnFragmentInteractionListener mOnFragmentInteractionListener;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -59,6 +61,11 @@ public class AddServiceFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        try {
+            mOnFragmentInteractionListener = (OnFragmentInteractionListener) getActivity();
+        } catch (ClassCastException e) {
+            throw new IllegalStateException("activiti ... ");
+        }
     }
 
     @Override
@@ -68,12 +75,33 @@ public class AddServiceFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_add, container, false);
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.findViewById(R.id.button_cancel_activityAddService).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("TAG","clicked");
+                mOnFragmentInteractionListener.cancelButonOnAddFragmentPressed();
+
+            }
+        });
+
+        view.findViewById(R.id.button_save_activityAddService).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOnFragmentInteractionListener.addButonOnAddFragmentPressed();
+
+            }
+        });
+    }
+
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    /*public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
-    }
+    }*/
 
     @Override
     public void onAttach(Context context) {
@@ -104,6 +132,8 @@ public class AddServiceFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        //void onFragmentInteraction(Uri uri);
+        void cancelButonOnAddFragmentPressed();
+        void addButonOnAddFragmentPressed();
     }
 }

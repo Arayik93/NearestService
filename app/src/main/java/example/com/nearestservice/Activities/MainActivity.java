@@ -33,7 +33,7 @@ import example.com.nearestservice.Fragments.AddServiceFragment;
 import example.com.nearestservice.R;
 
 public class MainActivity extends FragmentActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, AddServiceFragment.OnFragmentInteractionListener {
 
 
     private GoogleMap mMap;
@@ -198,6 +198,16 @@ public class MainActivity extends FragmentActivity
                 .snippet("The most populous city in Australia.")
                 .position(sydney));
 
+
+    }
+
+    @Override
+    public void cancelButonOnAddFragmentPressed() {
+
+    }
+
+    @Override
+    public void addButonOnAddFragmentPressed() {
 
     }
 }
