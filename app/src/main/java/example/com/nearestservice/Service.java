@@ -1,13 +1,9 @@
-package example.com.nearestservice.Service;
-
-import android.support.annotation.Nullable;
-
-import io.realm.RealmObject;
+package example.com.nearestservice;
 
 /**
  * Created by Abov on 8/5/2016.
  */
-public class Service extends RealmObject {
+/*public class Service extends RealmObject {
 
     @Nullable
     private int id;
@@ -30,4 +26,29 @@ public class Service extends RealmObject {
         mAddress = address;
         mRating = rating;
     }
-}
+
+    @Nullable
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public String getCategory() {
+        return mCategory;
+    }
+
+    public String getDescription() {
+        return mDescription;
+    }
+
+    public String getAddress() {
+        return mAddress;
+    }
+
+    public int getRating() {
+        return mRating;
+    }
+}*/

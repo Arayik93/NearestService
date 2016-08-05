@@ -1,5 +1,8 @@
-package example.com.nearestservice;
+package example.com.nearestservice.Activities;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -13,20 +16,21 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import example.com.nearestservice.Fragments.AddServiceFragment;
+import example.com.nearestservice.R;
 
 public class MainActivity extends FragmentActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -34,13 +38,14 @@ public class MainActivity extends FragmentActivity
 
     private GoogleMap mMap;
     LatLng sydney;
-
+    LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        linearLayout = (LinearLayout) findViewById(R.id.layout_for_map_Fragment);
         //setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -101,10 +106,21 @@ public class MainActivity extends FragmentActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            Intent i = new Intent(MainActivity.this, MapLocationActivity.class);
-            startActivity(i);
+            //startActivity(new Intent(MainActivity.this, AddServiceActivity.class));
+
+            linearLayout.setVisibility(View.GONE);
+            Fragment addServiceFragment = new AddServiceFragment();
+
+
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.frameLayout_for_addServiceFragment, addServiceFragment);
+
+            fragmentTransaction.commit();
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
+            Intent i = new Intent(MainActivity.this, MapLocationActivity.class);
+            startActivity(i);
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -127,7 +143,6 @@ public class MainActivity extends FragmentActivity
         mMap = googleMap;
 
 
-
         // Add a marker in Sydney and move the camera
 
         /*sydney = new LatLng(-34, 151);
@@ -137,7 +152,6 @@ public class MainActivity extends FragmentActivity
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
 
         LatLng sydney = new LatLng(-33.867, 151.206);
-
 
 
         if (mMap == null) {
@@ -164,8 +178,8 @@ public class MainActivity extends FragmentActivity
                     public void onMyLocationChange(Location arg0) {
                         // TODO Auto-generated method stub
 
-                        CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
-                        CameraUpdate zoom=CameraUpdateFactory.zoomTo(12);
+                        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
+                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
 
                         mMap.moveCamera(center);
                         mMap.animateCamera(zoom);
