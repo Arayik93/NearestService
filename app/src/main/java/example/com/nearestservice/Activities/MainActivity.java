@@ -184,11 +184,6 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        // mMap = googleMap;
-
-
-        // LatLng sydney = new LatLng(-33.867, 151.206);
-
 
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
@@ -207,32 +202,25 @@ public class MainActivity extends FragmentActivity
 
 
             if (mMap != null) {
-
+                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
                 mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+
 
                     @Override
                     public void onMyLocationChange(Location arg0) {
                         // TODO Auto-generated method stub
 
-                        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
-                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
-
-                        mMap.moveCamera(center);
-
                         if (flag) {
-                            mMap.addMarker(new MarkerOptions().position(new LatLng(arg0.getLatitude(), arg0.getLongitude()))
-                                    .title("aa").draggable(true).snippet("betpo"));
+
+                            CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
+                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
+
+                            mMap.moveCamera(center);
                             mMap.animateCamera(zoom);
                             flag = false;
                         }
-                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                            @Override
-                            public boolean onMarkerClick(Marker marker) {
-                                Toast.makeText(MainActivity.this, "Alibaba", Toast.LENGTH_SHORT).show();
-                                return false;
-                            }
-                        });
+
 
                     }
                 });

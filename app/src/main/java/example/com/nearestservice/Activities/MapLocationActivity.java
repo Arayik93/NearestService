@@ -46,7 +46,6 @@ public class MapLocationActivity extends AppCompatActivity
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
 
-    private Fragment addServiceFragment;
     private LatLng selectedPosition;
 
 
@@ -68,7 +67,7 @@ public class MapLocationActivity extends AppCompatActivity
         mapFrag.getMapAsync(this);
 
 
-        addServiceFragment = new AddServiceFragment();
+        Fragment addServiceFragment = new AddServiceFragment();
 
 
         FragmentManager fragmentManager = getFragmentManager();
