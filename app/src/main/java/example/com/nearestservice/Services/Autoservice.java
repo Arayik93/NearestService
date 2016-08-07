@@ -4,27 +4,25 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 
-public class Autoservice extends RealmObject {
+public class AutoService extends RealmObject {
     @PrimaryKey
     private int id;
     private String name;
     private String description;
-    private double rating;
+    private double rating = 0;
     private double latitude;
     private double longitude;
-    private String category = "autoservice";
+    private String category = "autoService";
 
-    public Autoservice(int id, String name, String description, double rating, double latitude, double longitude, String category) {
+    public AutoService(int id, String name, String description, double latitude, double longitude) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.rating = rating;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.category = category;
     }
 
-    public Autoservice() {
+    public AutoService() {
 
     }
 

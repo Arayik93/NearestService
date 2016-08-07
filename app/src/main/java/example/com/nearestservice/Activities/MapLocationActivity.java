@@ -27,13 +27,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.List;
-
 import example.com.nearestservice.Fragments.AddServiceFragment;
 import example.com.nearestservice.R;
+import example.com.nearestservice.Services.AutoService;
+import example.com.nearestservice.Services.BeautySalon;
+import example.com.nearestservice.Services.FastFood;
 import io.realm.Realm;
 import io.realm.RealmResults;
-
 
 
 public class MapLocationActivity extends AppCompatActivity
@@ -41,21 +41,19 @@ public class MapLocationActivity extends AppCompatActivity
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
-        AddServiceFragment.OnFragmentInteractionListener
-{
+        AddServiceFragment.OnFragmentInteractionListener {
 
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
 
     private Fragment addServiceFragment;
+    private LatLng selectedPosition;
 
 
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
-
-   // List<Service> a;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,23 +67,7 @@ public class MapLocationActivity extends AppCompatActivity
         mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
 
-        Bundle b = getIntent().getExtras();
-        if (b != null) {
-            //String s  = b.getString(MainActivity.CATEGORY_TYPE);
 
-            switch ((String) b.getString(MainActivity.CATEGORY_TYPE)) {
-                case "varsavir":
-                    //readServicesFromDB();
-                   // setServicesPositions(a);
-
-                   // Toast.makeText(getApplicationContext(), "Aded New Combo", Toast.LENGTH_SHORT).show();
-
-                    break;
-                default:
-                    break;
-
-            }
-        }
         addServiceFragment = new AddServiceFragment();
 
 
@@ -94,35 +76,9 @@ public class MapLocationActivity extends AppCompatActivity
         fragmentTransaction.add(R.id.frameLayout_for_addServiceFragment, addServiceFragment);
         fragmentTransaction.commit();
 
+
     }
 
-    /*private void readServicesFromDB() {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-
-        RealmResults rel = realm.where(Service.class).findAll();
-        a = rel;
-        realm.commitTransaction();
-
-    }*/
-
-
-    /*private void setServicesPositions(List<Service> l) {
-
-
-        for (Service s : l) {
-
-            LatLng latLng = new LatLng(40 , 44 );
-            mGoogleMap.addMarker(new MarkerOptions().position(latLng).
-                    title(s.getName()));
-
-        }
-
-
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-
-    }*/
 
     @Override
     public void onPause() {
@@ -201,10 +157,7 @@ public class MapLocationActivity extends AppCompatActivity
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
         mCurrLocationMarker.setDraggable(true);
 
-        final LatLng hasce = mCurrLocationMarker.getPosition();
-
-
-
+        selectedPosition = mCurrLocationMarker.getPosition();
 
 
         //move map camera
@@ -225,17 +178,14 @@ public class MapLocationActivity extends AppCompatActivity
             @Override
             public void onMarkerDragEnd(Marker marker) {
 
-               LatLng ll =  marker.getPosition();
-                Toast.makeText(MapLocationActivity.this, ""+ll.longitude, Toast.LENGTH_SHORT).show();
+                selectedPosition = marker.getPosition();
             }
         });
-
 
 
         mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Toast.makeText(MapLocationActivity.this, ""+ hasce.latitude, Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
@@ -322,8 +272,51 @@ public class MapLocationActivity extends AppCompatActivity
     }
 
     @Override
-    public void addButonOnAddFragmentPressed() {
+    public void addButtonOnAddFragmentPressed(int serviceIndex, String name, String Address, String description) {
+
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        RealmResults rel;
+        int id = 1;
+        switch (serviceIndex) {
+            case 0:
+                AutoService autoService = new AutoService(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+                rel = realm.where(AutoService.class).findAll();
+                if (rel.size() != 0) {
+                    AutoService autoServiceFromDB = (AutoService) rel.last();
+                    id = autoServiceFromDB.getId() + 1;
+                }
+                autoService.setId(id);
+                realm.copyToRealm(autoService);
+                break;
+            case 1:
+                BeautySalon beautySalon = new BeautySalon(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+                rel = realm.where(BeautySalon.class).findAll();
+                if (rel.size() != 0) {
+                    BeautySalon beautySalonFromDB = (BeautySalon) rel.last();
+                    id = beautySalonFromDB.getId() + 1;
+                }
+                beautySalon.setId(id);
+                realm.copyToRealm(beautySalon);
+                break;
+            case 2:
+                FastFood fastFood = new FastFood(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+                rel = realm.where(FastFood.class).findAll();
+                if (rel.size() != 0) {
+                    FastFood fastFoodFromDB = (FastFood) rel.last();
+                    id = fastFoodFromDB.getId() + 1;
+                }
+                fastFood.setId(id);
+                realm.copyToRealm(fastFood);
+                break;
+            default:
+                break;
+        }
+        realm.commitTransaction();
 
     }
+
+
 }
+
 

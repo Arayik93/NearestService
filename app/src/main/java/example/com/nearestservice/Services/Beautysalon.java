@@ -3,32 +3,27 @@ package example.com.nearestservice.Services;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-/**
- * Created by Taron on 06.08.2016.
- */
-public class Beautysalon extends RealmObject {
+public class BeautySalon extends RealmObject {
+
     @PrimaryKey
     private int id;
     private String name;
     private String description;
-    private double rating;
-    private String address;
+    private double rating = 0;
     private double latitude;
     private double longitude;
-    private String category = "beautysalon";
+    private String category = "beautySalon";
 
-    public Beautysalon() {
-    }
-
-    public Beautysalon(int id, String name, String description, double rating, String address, double latitude, double longitude, String category) {
+    public BeautySalon(int id, String name, String description, double latitude, double longitude) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.rating = rating;
-        this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.category = category;
+    }
+
+    public BeautySalon() {
+
     }
 
     public int getId() {
@@ -61,14 +56,6 @@ public class Beautysalon extends RealmObject {
 
     public void setRating(double rating) {
         this.rating = rating;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public double getLatitude() {

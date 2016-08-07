@@ -3,7 +3,6 @@ package example.com.nearestservice.Fragments;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +10,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import example.com.nearestservice.R;
-import example.com.nearestservice.Services.Autoservice;
-import io.realm.Realm;
-import io.realm.RealmResults;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -84,16 +80,19 @@ public class AddServiceFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final EditText serviceName_edt = (EditText) view.findViewById(R.id.AddFragmentServiceName);
-        final Spinner serviceCategory_edt = (Spinner) view.findViewById(R.id.AddFragmentServiceSpinner);
-        final EditText serviceDescription_edt = (EditText) view.findViewById(R.id.AddFragmentServiceDescription);
-        final EditText serviceAddress_edt = (EditText) view.findViewById(R.id.AddFragmentServiceAddress);
-        final int indexOfSelectedItem = serviceCategory_edt.getSelectedItemPosition();
+        final String name = (((EditText) view.findViewById(R.id.AddFragmentServiceName)).getText().toString());
+        final String description = (((EditText) view.findViewById(R.id.AddFragmentServiceDescription)).getText().toString());
+        final String address = (((EditText) view.findViewById(R.id.AddFragmentServiceAddress)).getText().toString());
+        final int indexOfSelectedItem = ((Spinner) view.findViewById(R.id.AddFragmentServiceSpinner)).getSelectedItemPosition();
 
+        view.findViewById(R.id.button_save_activityAddService).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                mOnFragmentInteractionListener.addButtonOnAddFragmentPressed(indexOfSelectedItem, name, address, description);
 
-
-
+            }
+        });
 
         view.findViewById(R.id.button_cancel_activityAddService).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,60 +103,7 @@ public class AddServiceFragment extends Fragment {
             }
         });
 
-        view.findViewById(R.id.button_save_activityAddService).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                String name = serviceName_edt.getText().toString();
-                String description = serviceDescription_edt.getText().toString();
-                String address = serviceAddress_edt.getText().toString();
-                double rating = 0;
-
-                double latitude;
-                double longitude;
-
-                switch (indexOfSelectedItem){
-                    case 0:
-                        Autoservice createdService = new Autoservice();
-                        createdService.setName(name);
-                        break;
-                    default:
-                        break;
-                }
-
-                //Realm realm = MainActivity.realm;
-                /*Realm realm = Realm.getDefaultInstance();
-                realm.beginTransaction();
-
-                RealmResults rel = realm.where(Service.class).findAll();
-
-                int id = 1;
-
-                if (rel.size() != 0) {
-                    Service s = (Service) rel.last();
-                    id = s.getId() + 1;
-                }
-
-
-                s = new Service();
-                s.setId(id);
-
-                s.setRating(0);
-                s.setName(serviceName_edt.getText().toString());
-                s.setAddress(serviceAddress_edt.getText().toString());
-                s.setCategory(serviceCategory_edt.getSelectedItem().toString());
-                s.setDescription(serviceDescription_edt.getText().toString());
-
-
-                realm.copyToRealm(s);
-
-                //realm.copyToRealmOrUpdate(u);//esi karanq nuyn id-n tanq update anenq
-
-                realm.commitTransaction();*/
-                mOnFragmentInteractionListener.addButonOnAddFragmentPressed();
-
-            }
-        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -199,6 +145,6 @@ public class AddServiceFragment extends Fragment {
         //void onFragmentInteraction(Uri uri);
         void cancelButonOnAddFragmentPressed();
 
-        void addButonOnAddFragmentPressed();
+        void addButtonOnAddFragmentPressed(int serviceIndex, String name, String Address, String description);
     }
 }

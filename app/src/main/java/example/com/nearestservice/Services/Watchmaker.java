@@ -5,24 +5,25 @@ import io.realm.annotations.PrimaryKey;
 
 
 public class Watchmaker extends RealmObject{
+
     @PrimaryKey
     private int id;
     private String name;
     private String description;
-    private double rating;
+    private double rating = 0;
     private double latitude;
     private double longitude;
     private String category = "watchmaker";
 
-    public Watchmaker(){}
-
-    public Watchmaker(int id, String name, String description, double rating, double latitude, double longitude) {
+    public Watchmaker(int id, String name, String description, double latitude, double longitude) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.rating = rating;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public Watchmaker() {
 
     }
 
