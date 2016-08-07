@@ -20,32 +20,36 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import example.com.nearestservice.Fragments.AddServiceFragment;
 import example.com.nearestservice.R;
-import example.com.nearestservice.Service;
+import example.com.nearestservice.Services.Watchmaker;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 public class MainActivity extends FragmentActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, AddServiceFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        OnMapReadyCallback,
+        AddServiceFragment.OnFragmentInteractionListener {
 
+    public static final String CATEGORY_TYPE = "CategoryType";
 
     public static Realm realm;
 
@@ -57,6 +61,8 @@ public class MainActivity extends FragmentActivity
     private android.support.v7.widget.Toolbar tb;
 
     List a;
+    private double x, y;
+    private boolean flag = true;
 
 
     @Override
@@ -143,25 +149,36 @@ public class MainActivity extends FragmentActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_autoservice) {
+
             //startActivity(new Intent(MainActivity.this, AddServiceActivity.class));
 
-            tb.setVisibility(View.GONE);
-            changeMapToAdd();
+            //tb.setVisibility(View.GONE);
+            //changeMapToAdd();
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_watchmaker) {
+
+
+            writeInDB();
+            readServicesFromDB(Watchmaker.class);
+
+            setServicesPositions(1);
+
+        } else if (id == R.id.nav_beautySalon) {
             Intent i = new Intent(MainActivity.this, MapLocationActivity.class);
+            i.putExtra(CATEGORY_TYPE, "varsavir");
             startActivity(i);
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_fastFood) {
             writeInDB();
-            readServicesFromDB();
-            setServicesPositions(a);
+            readServicesFromDB(Watchmaker.class);
+            Toast.makeText(MainActivity.this, ""+a.get(0).toString(), Toast.LENGTH_LONG).show();
 
-        } else if (id == R.id.nav_manage) {
+           // setServicesPositions(a, "a");
 
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_autoservice) {
+
 
 
         } else if (id == R.id.nav_send) {
@@ -173,6 +190,8 @@ public class MainActivity extends FragmentActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -211,11 +230,27 @@ public class MainActivity extends FragmentActivity
                         CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
 
                         mMap.moveCamera(center);
-                        mMap.animateCamera(zoom);
+
+                        if (flag) {
+                            mMap.addMarker(new MarkerOptions().position(new LatLng(arg0.getLatitude(), arg0.getLongitude()))
+                                    .title("aa").draggable(true).snippet("betpo"));
+                            mMap.animateCamera(zoom);
+                            flag = false;
+                        }
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+                                Toast.makeText(MainActivity.this, "Alibaba", Toast.LENGTH_SHORT).show();
+                                return false;
+                            }
+                        });
+
                     }
                 });
 
             }
+
+
         }
 
 
@@ -239,29 +274,105 @@ public class MainActivity extends FragmentActivity
     }
 
     private void writeInDB() {
-        //
-    }
 
-    private void readServicesFromDB() {
+        Watchmaker u;
+
         realm.beginTransaction();
+        int id = 1;
+for(int i = 0; i < 2; ++i ) {
+    RealmResults rel = realm.where(Watchmaker.class).findAll();
 
-        RealmResults rel = realm.where(Service.class).findAll();
-        a = rel;
+
+    if (rel.size() != 0) {
+        Watchmaker us = (Watchmaker) rel.last();
+        id = us.getId() + 1;
+    }
+
+    u = new Watchmaker();
+    u.setName("kanfe");
+    u.setId(id);
+    u.setDescription("asa");
+    u.setLatitude(0 + i*2);
+    u.setLatitude(0+i*2);
+    u.setRating(0);
+
+
+    //a = rel;
+
+
+    //realm.copyToRealmOrUpdate(u);//esi karanq nuyn id-n tanq update anenq
+    realm.copyToRealm(u);
+}
         realm.commitTransaction();
+    }
+
+    private void readServicesFromDB(Class c) {
+
+        if (!(c.getSuperclass().equals(RealmObject.class))) {
+            Log.e("TODO", "c must extends from Realm Object");
+        } else {
+            realm.beginTransaction();
+
+            RealmResults rel = realm.where(c).findAll();
+            //a = rel;
+            a = new ArrayList<Watchmaker>();
+            a.addAll(rel);
+
+            realm.commitTransaction();
+
+        }
 
     }
 
-    int i = 0;
-
-    private void setServicesPositions(List<Service> l) {
+    private void setServicesPositions(int i) {
 
 
-        for (Service s : l) {
+        String name, description;
+        double rating, latitude, longitude;
+        float icon;
 
-            i += 1;
-            LatLng latLng = new LatLng(40 + i, 44 + i);
-            mMap.addMarker(new MarkerOptions().position(latLng).
-                    title(s.getName()));
+
+
+
+            latitude = 0;
+            longitude = 0;
+            rating = 0;
+            name = "";
+            description = "";
+           // icon = BitmapDescriptorFactory.HUE_GREEN;
+
+            Log.e("abov", "verev em");
+        //for (Watchmaker c : a) {
+
+        for(int z = 0; z < a.size(); z++) {
+
+            Watchmaker watchmaker = (Watchmaker) a.get(z);
+            //Watchmaker watchmaker = (Watchmaker) c.cast(Watchmaker.class);
+            // if (c.getClass().equals(Watchmaker.class)) {
+            Log.e("abov", "estex em");
+            // Watchmaker watchmaker = (Watchmaker) c.cast(Watchmaker.class);
+            name = watchmaker.getName();
+            description = watchmaker.getDescription();
+            rating = watchmaker.getRating();
+            latitude = watchmaker.getLatitude();
+            longitude = watchmaker.getLongitude();
+            //icon = R.drawable.ic_watchmaker_24px;
+            //}
+            // }
+            Log.e("abov","bb");
+
+            LatLng latLng = new LatLng(latitude, longitude);
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.title("Current Position");
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            Marker mServiceMarker = mMap.addMarker(markerOptions);
+            mServiceMarker.setDraggable(false);
+        }
+
+
+
+
 
         }
 
@@ -269,7 +380,6 @@ public class MainActivity extends FragmentActivity
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
 
-    }
 
     private void changeAdToMap() {
         tb.setVisibility(View.VISIBLE);

@@ -1,5 +1,9 @@
+
 package example.com.nearestservice.Activities;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -23,28 +27,38 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import example.com.nearestservice.R;
+import java.util.List;
 
-/**
- * Created by Abov on 8/5/2016.
- */
+import example.com.nearestservice.Fragments.AddServiceFragment;
+import example.com.nearestservice.R;
+import io.realm.Realm;
+import io.realm.RealmResults;
+
+
+
 public class MapLocationActivity extends AppCompatActivity
         implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener,
+        AddServiceFragment.OnFragmentInteractionListener
+{
 
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
+
+    private Fragment addServiceFragment;
+
 
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
 
+   // List<Service> a;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.for_suport);
 
@@ -54,7 +68,61 @@ public class MapLocationActivity extends AppCompatActivity
 
         mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
+
+        Bundle b = getIntent().getExtras();
+        if (b != null) {
+            //String s  = b.getString(MainActivity.CATEGORY_TYPE);
+
+            switch ((String) b.getString(MainActivity.CATEGORY_TYPE)) {
+                case "varsavir":
+                    //readServicesFromDB();
+                   // setServicesPositions(a);
+
+                   // Toast.makeText(getApplicationContext(), "Aded New Combo", Toast.LENGTH_SHORT).show();
+
+                    break;
+                default:
+                    break;
+
+            }
+        }
+        addServiceFragment = new AddServiceFragment();
+
+
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.frameLayout_for_addServiceFragment, addServiceFragment);
+        fragmentTransaction.commit();
+
     }
+
+    /*private void readServicesFromDB() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        RealmResults rel = realm.where(Service.class).findAll();
+        a = rel;
+        realm.commitTransaction();
+
+    }*/
+
+
+    /*private void setServicesPositions(List<Service> l) {
+
+
+        for (Service s : l) {
+
+            LatLng latLng = new LatLng(40 , 44 );
+            mGoogleMap.addMarker(new MarkerOptions().position(latLng).
+                    title(s.getName()));
+
+        }
+
+
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+
+    }*/
 
     @Override
     public void onPause() {
@@ -67,10 +135,10 @@ public class MapLocationActivity extends AppCompatActivity
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap)
-    {
-        mGoogleMap=googleMap;
-        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+    public void onMapReady(GoogleMap googleMap) {
+        mGoogleMap = googleMap;
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -80,10 +148,10 @@ public class MapLocationActivity extends AppCompatActivity
                 buildGoogleApiClient();
                 mGoogleMap.setMyLocationEnabled(true);
             }
-        }
-        else {
+        } else {
             buildGoogleApiClient();
-            mGoogleMap.setMyLocationEnabled(true);
+            //ToDO AHAHAccccccccccccccccccccccccccccccccccccccccccccccccc
+            //mGoogleMap.setMyLocationEnabled(true);
         }
     }
 
@@ -110,30 +178,67 @@ public class MapLocationActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnectionSuspended(int i) {}
+    public void onConnectionSuspended(int i) {
+    }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {}
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+    }
 
     @Override
-    public void onLocationChanged(Location location)
-    {
+    public void onLocationChanged(Location location) {
         mLastLocation = location;
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
 
         //Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
+        mCurrLocationMarker.setDraggable(true);
+
+        final LatLng hasce = mCurrLocationMarker.getPosition();
+
+
+
+
 
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(20));
+        mGoogleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+
+               LatLng ll =  marker.getPosition();
+                Toast.makeText(MapLocationActivity.this, ""+ll.longitude, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+        mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Toast.makeText(MapLocationActivity.this, ""+ hasce.latitude, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
 
         //stop location updates
         if (mGoogleApiClient != null) {
@@ -142,7 +247,8 @@ public class MapLocationActivity extends AppCompatActivity
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public boolean checkLocationPermission(){
+
+    public boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -191,7 +297,9 @@ public class MapLocationActivity extends AppCompatActivity
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
                         }
-                        mGoogleMap.setMyLocationEnabled(true);
+                        //ToDO AHAHAccccccccccccccccccccccccccccccccccccccccccccccccc
+
+                        //mGoogleMap.setMyLocationEnabled(true);
                     }
 
                 } else {
@@ -208,4 +316,14 @@ public class MapLocationActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void cancelButonOnAddFragmentPressed() {
+
+    }
+
+    @Override
+    public void addButonOnAddFragmentPressed() {
+
+    }
 }
+

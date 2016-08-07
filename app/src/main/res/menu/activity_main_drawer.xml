@@ -2,30 +2,50 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
+
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import"/>
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery"/>
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow"/>
-        <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_autoservice"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Tools"/>
+            android:title="Auto Service"/>
+        <item
+            android:id="@+id/nav_beautySalon"
+            android:icon="@drawable/ic_beautysalon_24px"
+            android:title="Beauty Salon"/>
+
+        <item
+            android:id="@+id/nav_fastFood"
+            android:icon="@drawable/ic_fastbood_24px"
+            android:title="Fast Food"/>
+        <item
+            android:id="@+id/nav_pharmacy"
+            android:icon="@drawable/ic_pharmacy_24px"
+            android:title="Pharmacy"/>
+        <item
+            android:id="@+id/nav_Photo"
+            android:icon="@drawable/ic_photo_24px"
+            android:title="Photo"/>
+
+        <item
+            android:id="@+id/nav_Shop"
+            android:icon="@drawable/ic_shop_24px"
+            android:title="Shop"/>
+        <item
+            android:id="@+id/nav_Tailor"
+            android:icon="@drawable/ic_tailor_24px"
+            android:title="Tailor"/>
+        <item
+            android:id="@+id/nav_watchmaker"
+            android:icon="@drawable/ic_watchmaker_24px"
+            android:title="Watchmaker"/>
+
     </group>
 
     <item android:title="Communicate">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share"/>
+                android:id="@+id/nav_add"
+                android:icon="@drawable/ic_add_24px"
+                android:title="Add New Service"/>
             <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"

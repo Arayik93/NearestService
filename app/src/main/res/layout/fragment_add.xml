@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/AddFragmentServiceName"
+        android:hint="Name"
         android:layout_marginTop="10dp"/>
 
     <Spinner
@@ -20,15 +21,17 @@
         android:layout_marginTop="10dp"/>
 
     <EditText
+        android:hint="Description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/AddFragmentServiceDescriptione"
+        android:id="@+id/AddFragmentServiceDescription"
         android:layout_marginTop="10dp"/>
 
     <EditText
+        android:hint="Address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/AddFragmentServiceAddres"
+        android:id="@+id/AddFragmentServiceAddress"
         android:layout_marginTop="10dp"/>
 
     <LinearLayout

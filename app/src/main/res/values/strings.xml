@@ -9,10 +9,14 @@
     <string name="cancel">Cancel</string>
 
     <string-array name="spinnerItems">
-        <item>item1</item>
-        <item>item2</item>
-        <item>item3</item>
-        <item>item4</item>
+        <item>Auto Service</item>
+        <item>Beauty Salon</item>
+        <item>Fast Food</item>
+        <item>Pharmacy</item>
+        <item>Photo</item>
+        <item>Shop</item>
+        <item>Tailor</item>
+        <item>Watchmaker</item>
     </string-array>
 
     <!-- TODO: Remove or change this placeholder text -->

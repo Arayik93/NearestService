@@ -2,19 +2,16 @@ package example.com.nearestservice.Fragments;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import example.com.nearestservice.Activities.MainActivity;
 import example.com.nearestservice.R;
-import example.com.nearestservice.Service;
+import example.com.nearestservice.Services.Autoservice;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
@@ -29,7 +26,7 @@ import io.realm.RealmResults;
 public class AddServiceFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    Service s;
+   // Service s;
     private OnFragmentInteractionListener mOnFragmentInteractionListener;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -89,13 +86,19 @@ public class AddServiceFragment extends Fragment {
 
         final EditText serviceName_edt = (EditText) view.findViewById(R.id.AddFragmentServiceName);
         final Spinner serviceCategory_edt = (Spinner) view.findViewById(R.id.AddFragmentServiceSpinner);
-        final EditText serviceDescription_edt = (EditText) view.findViewById(R.id.AddFragmentServiceDescriptione);
-        final EditText serviceAddress_edt = (EditText) view.findViewById(R.id.AddFragmentServiceAddres);
+        final EditText serviceDescription_edt = (EditText) view.findViewById(R.id.AddFragmentServiceDescription);
+        final EditText serviceAddress_edt = (EditText) view.findViewById(R.id.AddFragmentServiceAddress);
+        final int indexOfSelectedItem = serviceCategory_edt.getSelectedItemPosition();
+
+
+
+
 
 
         view.findViewById(R.id.button_cancel_activityAddService).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 mOnFragmentInteractionListener.cancelButonOnAddFragmentPressed();
 
             }
@@ -105,8 +108,25 @@ public class AddServiceFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+                String name = serviceName_edt.getText().toString();
+                String description = serviceDescription_edt.getText().toString();
+                String address = serviceAddress_edt.getText().toString();
+                double rating = 0;
+
+                double latitude;
+                double longitude;
+
+                switch (indexOfSelectedItem){
+                    case 0:
+                        Autoservice createdService = new Autoservice();
+                        createdService.setName(name);
+                        break;
+                    default:
+                        break;
+                }
+
                 //Realm realm = MainActivity.realm;
-                Realm realm = Realm.getDefaultInstance();
+                /*Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
 
                 RealmResults rel = realm.where(Service.class).findAll();
@@ -133,7 +153,7 @@ public class AddServiceFragment extends Fragment {
 
                 //realm.copyToRealmOrUpdate(u);//esi karanq nuyn id-n tanq update anenq
 
-                realm.commitTransaction();
+                realm.commitTransaction();*/
                 mOnFragmentInteractionListener.addButonOnAddFragmentPressed();
 
             }
