@@ -93,14 +93,21 @@ public class AddServiceFragment extends Fragment {
             }
         });*/
 
-        final String name = (((EditText) view.findViewById(R.id.AddFragmentServiceName)).getText().toString());
-        final String description = (((EditText) view.findViewById(R.id.AddFragmentServiceDescription)).getText().toString());
-        final String address = (((EditText) view.findViewById(R.id.AddFragmentServiceAddress)).getText().toString());
-        final int indexOfSelectedItem = ((Spinner) view.findViewById(R.id.AddFragmentServiceSpinner)).getSelectedItemPosition();
+        final EditText name_edt = (EditText) view.findViewById(R.id.AddFragmentServiceName);
+        final EditText description_edt = (EditText) view.findViewById(R.id.AddFragmentServiceDescription);
+        final EditText address_edt = (EditText) view.findViewById(R.id.AddFragmentServiceAddress);
+        final Spinner indexOfSelectedItem_spin = (Spinner) view.findViewById(R.id.AddFragmentServiceSpinner);
 
         view.findViewById(R.id.button_save_activityAddService).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                String name = name_edt.getText().toString();
+                String description = description_edt.getText().toString();
+                String address = address_edt.getText().toString();
+                int indexOfSelectedItem = indexOfSelectedItem_spin.getSelectedItemPosition();
+
+
                 mOnFragmentInteractionListener.addButtonOnAddFragmentPressed(indexOfSelectedItem, name, address, description);
 
             }

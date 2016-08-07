@@ -27,6 +27,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -245,6 +246,11 @@ public class MainActivity extends FragmentActivity
     private void readServicesFromDB(Class c, int i) {
         realm.beginTransaction();
         RealmResults rel = realm.where(c).findAll();
+        if(rel.isEmpty()){
+            realm.commitTransaction();
+            Toast.makeText(MainActivity.this, "0 Services Fond", Toast.LENGTH_SHORT).show();
+            return;
+        }
         List allServices;
         switch (i) {
             case 0:
@@ -277,6 +283,8 @@ public class MainActivity extends FragmentActivity
         }
 
         allServices.addAll(rel);
+        Toast.makeText(MainActivity.this, ""+allServices.size()+" Services fond", Toast.LENGTH_SHORT).show();
+
         realm.commitTransaction();
         setServicesPositions(allServices, i);
     }
@@ -285,8 +293,9 @@ public class MainActivity extends FragmentActivity
 
         String name, description, category;
         double rating, latitude, longitude;
-        float icon;
         int id;
+        BitmapDescriptor icon;
+
 
         latitude = 0;
         longitude = 0;
@@ -294,7 +303,8 @@ public class MainActivity extends FragmentActivity
         name = "";
         description = "";
         category = "";
-        icon = (float) R.drawable.ic_menu_manage;
+        icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+
         id = 0;
 
 
@@ -310,7 +320,7 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = (float) R.drawable.ic_menu_manage;
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
                     id = selectedService.getId();
 
                 }
@@ -324,7 +334,7 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = (float) R.drawable.ic_menu_manage;
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
                     id = selectedService.getId();
                 }
                 break;
@@ -338,7 +348,7 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = (float) R.drawable.ic_menu_manage;
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
                     id = selectedService.getId();
                 }
                 break;
@@ -351,7 +361,7 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = (float) R.drawable.ic_menu_manage;
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
                     id = selectedService.getId();
                 }
                 break;
@@ -365,7 +375,7 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = (float) R.drawable.ic_menu_manage;
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
                     id = selectedService.getId();
                 }
                 break;
@@ -379,7 +389,7 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = (float) R.drawable.ic_menu_manage;
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
                     id = selectedService.getId();
                 }
                 break;
@@ -393,7 +403,7 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = (float) R.drawable.ic_menu_manage;
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
                     id = selectedService.getId();
                 }
                 break;
@@ -407,7 +417,7 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = (float) R.drawable.ic_menu_manage;
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
                     id = selectedService.getId();
                 }
                 break;
@@ -419,7 +429,7 @@ public class MainActivity extends FragmentActivity
                 name = "";
                 description = "";
                 category = "";
-                icon = (float) R.drawable.ic_menu_manage;
+                icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
                 id = 0;
                 break;
         }

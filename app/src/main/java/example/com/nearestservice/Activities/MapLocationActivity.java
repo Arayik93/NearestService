@@ -32,6 +32,11 @@ import example.com.nearestservice.R;
 import example.com.nearestservice.Services.AutoService;
 import example.com.nearestservice.Services.BeautySalon;
 import example.com.nearestservice.Services.FastFood;
+import example.com.nearestservice.Services.Pharmacy;
+import example.com.nearestservice.Services.Photo;
+import example.com.nearestservice.Services.Shop;
+import example.com.nearestservice.Services.Tailor;
+import example.com.nearestservice.Services.Watchmaker;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
@@ -45,13 +50,8 @@ public class MapLocationActivity extends AppCompatActivity
 
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
-    //int serviceIndex,
-    // String name, String Address, String description
-
-
 
     private LatLng selectedPosition;
-
 
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
@@ -70,20 +70,13 @@ public class MapLocationActivity extends AppCompatActivity
         mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
 
-
         Fragment addServiceFragment = new AddServiceFragment();
-
-
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.frameLayout_for_addServiceFragment, addServiceFragment);
         fragmentTransaction.commit();
 
-
     }
-
-
-
 
     @Override
     public void onPause() {
@@ -280,8 +273,6 @@ public class MapLocationActivity extends AppCompatActivity
     @Override
     public void addButtonOnAddFragmentPressed(int serviceIndex, String name, String Address, String description) {
 
-        Toast.makeText(MapLocationActivity.this, ""+serviceIndex+" name "+name, Toast.LENGTH_LONG).show();
-
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         RealmResults rel;
@@ -317,7 +308,58 @@ public class MapLocationActivity extends AppCompatActivity
                 fastFood.setId(id);
                 realm.copyToRealm(fastFood);
                 break;
+            case 3:
+                Pharmacy pharmacy = new Pharmacy(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+                rel = realm.where(Pharmacy.class).findAll();
+                if (rel.size() != 0) {
+                    Pharmacy pharmacyFromDB = (Pharmacy) rel.last();
+                    id = pharmacyFromDB.getId() + 1;
+                }
+                pharmacy.setId(id);
+                realm.copyToRealm(pharmacy);
+                break;
+            case 4:
+                Photo photo = new Photo(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+                rel = realm.where(Photo.class).findAll();
+                if (rel.size() != 0) {
+                    Photo photoFromDB = (Photo) rel.last();
+                    id = photoFromDB.getId() + 1;
+                }
+                photo.setId(id);
+                realm.copyToRealm(photo);
+                break;
+            case 5:
+                Shop shop = new Shop(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+                rel = realm.where(Shop.class).findAll();
+                if (rel.size() != 0) {
+                    Shop shopFromDB = (Shop) rel.last();
+                    id = shopFromDB.getId() + 1;
+                }
+                shop.setId(id);
+                realm.copyToRealm(shop);
+                break;
+            case 6:
+                Tailor tailor = new Tailor(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+                rel = realm.where(Tailor.class).findAll();
+                if (rel.size() != 0) {
+                    Tailor tailorFromDB = (Tailor) rel.last();
+                    id = tailorFromDB.getId() + 1;
+                }
+                tailor.setId(id);
+                realm.copyToRealm(tailor);
+                break;
+            case 7:
+                Watchmaker watchmaker = new Watchmaker(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+                rel = realm.where(Watchmaker.class).findAll();
+                if (rel.size() != 0) {
+                    Watchmaker watchmakerFromDB = (Watchmaker) rel.last();
+                    id = watchmakerFromDB.getId() + 1;
+                }
+                watchmaker.setId(id);
+                realm.copyToRealm(watchmaker);
+                break;
             default:
+                Toast.makeText(MapLocationActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
                 break;
         }
         realm.commitTransaction();
