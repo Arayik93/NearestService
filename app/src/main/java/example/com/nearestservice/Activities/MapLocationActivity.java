@@ -45,6 +45,10 @@ public class MapLocationActivity extends AppCompatActivity
 
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
+    //int serviceIndex,
+    // String name, String Address, String description
+
+
 
     private LatLng selectedPosition;
 
@@ -77,6 +81,8 @@ public class MapLocationActivity extends AppCompatActivity
 
 
     }
+
+
 
 
     @Override
@@ -266,12 +272,15 @@ public class MapLocationActivity extends AppCompatActivity
     }
 
     @Override
-    public void cancelButonOnAddFragmentPressed() {
+    public void cancelButtonOnAddFragmentPressed() {
+        finish();
 
     }
 
     @Override
     public void addButtonOnAddFragmentPressed(int serviceIndex, String name, String Address, String description) {
+
+        Toast.makeText(MapLocationActivity.this, ""+serviceIndex+" name "+name, Toast.LENGTH_LONG).show();
 
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
@@ -312,6 +321,7 @@ public class MapLocationActivity extends AppCompatActivity
                 break;
         }
         realm.commitTransaction();
+        finish();
 
     }
 

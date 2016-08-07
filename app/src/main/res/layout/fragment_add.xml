@@ -5,41 +5,49 @@
               tools:context="example.com.nearestservice.Fragments.AddServiceFragment"
               android:orientation="vertical">
 
-    <EditText
+    <LinearLayout
+        android:id="@+id/linearLayoutFor0.3"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/AddFragmentServiceName"
-        android:hint="Name"
-        android:layout_marginTop="10dp"/>
+        android:layout_height="wrap_content">
 
-    <Spinner
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/AddFragmentServiceSpinner"
-        android:drawSelectorOnTop="true"
-        android:entries="@array/spinnerItems"
-        android:layout_marginTop="10dp"/>
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/AddFragmentServiceSpinner"
+            android:drawSelectorOnTop="true"
+            android:entries="@array/spinnerItems"
+            android:layout_marginTop="10dp"
+            android:textAlignment="center"/>
 
-    <EditText
-        android:hint="Description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/AddFragmentServiceDescription"
-        android:layout_marginTop="10dp"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/AddFragmentServiceName"
+            android:hint="Name"
+            android:layout_marginTop="10dp"/>
 
-    <EditText
-        android:hint="Address"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/AddFragmentServiceAddress"
-        android:layout_marginTop="10dp"/>
+        <EditText
+            android:hint="Description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/AddFragmentServiceDescription"
+            android:layout_marginTop="10dp"/>
+
+        <EditText
+            android:hint="Address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/AddFragmentServiceAddress"
+            android:layout_marginTop="10dp"/>
+    </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:gravity="center"
-        android:layout_marginTop="25dp">
+        >
 
         <Button
             android:textAllCaps="false"
@@ -47,8 +55,9 @@
             android:layout_height="wrap_content"
             android:text="@string/save"
             android:id="@+id/button_save_activityAddService"
+            android:layout_marginRight="15dp"
             android:gravity="center"
-            android:layout_marginRight="15dp"/>
+            android:layout_gravity="bottom"/>
 
         <Button
             android:textAllCaps="false"
@@ -56,8 +65,9 @@
             android:layout_height="wrap_content"
             android:text="@string/cancel"
             android:id="@+id/button_cancel_activityAddService"
+            android:layout_marginLeft="15dp"
             android:gravity="center"
-            android:layout_marginLeft="15dp"/>
+            android:layout_gravity="bottom"/>
     </LinearLayout>
 
 </LinearLayout>

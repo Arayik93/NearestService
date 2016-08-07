@@ -2,12 +2,15 @@ package example.com.nearestservice.Fragments;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import example.com.nearestservice.R;
 
@@ -80,6 +83,16 @@ public class AddServiceFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+    /*    final LinearLayout addComponentsLayout = (LinearLayout)view.findViewById(R.id.linearLayoutFor0_3);
+
+        addComponentsLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addComponentsLayout.setAlpha(1);
+                addComponentsLayout.setBackgroundColor(Color.argb(255, 255, 255, 255));
+            }
+        });*/
+
         final String name = (((EditText) view.findViewById(R.id.AddFragmentServiceName)).getText().toString());
         final String description = (((EditText) view.findViewById(R.id.AddFragmentServiceDescription)).getText().toString());
         final String address = (((EditText) view.findViewById(R.id.AddFragmentServiceAddress)).getText().toString());
@@ -88,7 +101,6 @@ public class AddServiceFragment extends Fragment {
         view.findViewById(R.id.button_save_activityAddService).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 mOnFragmentInteractionListener.addButtonOnAddFragmentPressed(indexOfSelectedItem, name, address, description);
 
             }
@@ -98,7 +110,7 @@ public class AddServiceFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                mOnFragmentInteractionListener.cancelButonOnAddFragmentPressed();
+                mOnFragmentInteractionListener.cancelButtonOnAddFragmentPressed();
 
             }
         });
@@ -143,7 +155,7 @@ public class AddServiceFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         //void onFragmentInteraction(Uri uri);
-        void cancelButonOnAddFragmentPressed();
+        void cancelButtonOnAddFragmentPressed();
 
         void addButtonOnAddFragmentPressed(int serviceIndex, String name, String Address, String description);
     }

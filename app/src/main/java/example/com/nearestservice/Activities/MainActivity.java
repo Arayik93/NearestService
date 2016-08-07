@@ -59,7 +59,6 @@ public class MainActivity extends FragmentActivity
 
     private GoogleMap mMap;
 
-
     private double x, y;
     private boolean flag = true;
 
@@ -428,7 +427,7 @@ public class MainActivity extends FragmentActivity
         LatLng latLng = new LatLng(latitude, longitude);
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.title("Current Position");
+        markerOptions.title(name);
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         Marker mServiceMarker = mMap.addMarker(markerOptions);
         mServiceMarker.setDraggable(false);
