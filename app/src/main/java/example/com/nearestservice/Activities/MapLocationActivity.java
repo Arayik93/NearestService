@@ -91,7 +91,7 @@ public class MapLocationActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
 
         //Initialize Google Play Services
@@ -160,7 +160,7 @@ public class MapLocationActivity extends AppCompatActivity
 
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(20));
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
         mGoogleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
@@ -271,15 +271,17 @@ public class MapLocationActivity extends AppCompatActivity
     }
 
     @Override
-    public void addButtonOnAddFragmentPressed(int serviceIndex, String name, String Address, String description) {
+    public void addButtonOnAddFragmentPressed(int serviceIndex, String name, String address, String description) {
 
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         RealmResults rel;
         int id = 1;
         switch (serviceIndex) {
-            case 0:
-                AutoService autoService = new AutoService(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.AUTOSERVICE_INDEX:
+                //    public AutoService(int id, String name, String description, String address, double rating, double latitude, double longitude) {
+
+                AutoService autoService = new AutoService( name, description, address, selectedPosition.latitude, selectedPosition.longitude);
                 rel = realm.where(AutoService.class).findAll();
                 if (rel.size() != 0) {
                     AutoService autoServiceFromDB = (AutoService) rel.last();
@@ -288,8 +290,8 @@ public class MapLocationActivity extends AppCompatActivity
                 autoService.setId(id);
                 realm.copyToRealm(autoService);
                 break;
-            case 1:
-                BeautySalon beautySalon = new BeautySalon(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.BEAUTYSALON_INDEX:
+                BeautySalon beautySalon = new BeautySalon( name, description,address, selectedPosition.latitude, selectedPosition.longitude);
                 rel = realm.where(BeautySalon.class).findAll();
                 if (rel.size() != 0) {
                     BeautySalon beautySalonFromDB = (BeautySalon) rel.last();
@@ -298,8 +300,8 @@ public class MapLocationActivity extends AppCompatActivity
                 beautySalon.setId(id);
                 realm.copyToRealm(beautySalon);
                 break;
-            case 2:
-                FastFood fastFood = new FastFood(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.FASTFOOD_INDEX:
+                FastFood fastFood = new FastFood(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
                 rel = realm.where(FastFood.class).findAll();
                 if (rel.size() != 0) {
                     FastFood fastFoodFromDB = (FastFood) rel.last();
@@ -308,8 +310,8 @@ public class MapLocationActivity extends AppCompatActivity
                 fastFood.setId(id);
                 realm.copyToRealm(fastFood);
                 break;
-            case 3:
-                Pharmacy pharmacy = new Pharmacy(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.PHARMACY_INDEX:
+                Pharmacy pharmacy = new Pharmacy(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
                 rel = realm.where(Pharmacy.class).findAll();
                 if (rel.size() != 0) {
                     Pharmacy pharmacyFromDB = (Pharmacy) rel.last();
@@ -318,8 +320,8 @@ public class MapLocationActivity extends AppCompatActivity
                 pharmacy.setId(id);
                 realm.copyToRealm(pharmacy);
                 break;
-            case 4:
-                Photo photo = new Photo(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.PHOTO_INDEX:
+                Photo photo = new Photo(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
                 rel = realm.where(Photo.class).findAll();
                 if (rel.size() != 0) {
                     Photo photoFromDB = (Photo) rel.last();
@@ -328,8 +330,8 @@ public class MapLocationActivity extends AppCompatActivity
                 photo.setId(id);
                 realm.copyToRealm(photo);
                 break;
-            case 5:
-                Shop shop = new Shop(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.SHOP_INDEX:
+                Shop shop = new Shop(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
                 rel = realm.where(Shop.class).findAll();
                 if (rel.size() != 0) {
                     Shop shopFromDB = (Shop) rel.last();
@@ -338,8 +340,8 @@ public class MapLocationActivity extends AppCompatActivity
                 shop.setId(id);
                 realm.copyToRealm(shop);
                 break;
-            case 6:
-                Tailor tailor = new Tailor(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.TAILOR_INDEX:
+                Tailor tailor = new Tailor(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
                 rel = realm.where(Tailor.class).findAll();
                 if (rel.size() != 0) {
                     Tailor tailorFromDB = (Tailor) rel.last();
@@ -348,8 +350,8 @@ public class MapLocationActivity extends AppCompatActivity
                 tailor.setId(id);
                 realm.copyToRealm(tailor);
                 break;
-            case 7:
-                Watchmaker watchmaker = new Watchmaker(0, name, description, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.WATCHMAKER_INDEX:
+                Watchmaker watchmaker = new Watchmaker(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
                 rel = realm.where(Watchmaker.class).findAll();
                 if (rel.size() != 0) {
                     Watchmaker watchmakerFromDB = (Watchmaker) rel.last();

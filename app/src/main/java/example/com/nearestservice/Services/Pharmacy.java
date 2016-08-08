@@ -9,21 +9,30 @@ public class Pharmacy extends RealmObject {
     private int id;
     private String name;
     private String description;
+    private String address;
     private double rating = 0;
     private double latitude;
     private double longitude;
     private String category = "pharmacy";
 
-    public Pharmacy(int id, String name, String description, double latitude, double longitude) {
-        this.id = id;
+    public Pharmacy( String name, String description, String address, double latitude, double longitude) {
         this.name = name;
         this.description = description;
+        this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
     public Pharmacy() {
 
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public int getId() {

@@ -9,7 +9,9 @@
         android:id="@+id/linearLayoutFor0.3"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:alpha="0.8"
+        android:background="@color/wallet_holo_blue_light">
 
         <Spinner
             android:layout_width="match_parent"
@@ -46,8 +48,7 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        >
+        android:gravity="center">
 
         <Button
             android:textAllCaps="false"

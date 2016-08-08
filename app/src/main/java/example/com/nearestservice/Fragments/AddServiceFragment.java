@@ -164,6 +164,6 @@ public class AddServiceFragment extends Fragment {
         //void onFragmentInteraction(Uri uri);
         void cancelButtonOnAddFragmentPressed();
 
-        void addButtonOnAddFragmentPressed(int serviceIndex, String name, String Address, String description);
+        void addButtonOnAddFragmentPressed(int serviceIndex, String name, String address, String description);
     }
 }

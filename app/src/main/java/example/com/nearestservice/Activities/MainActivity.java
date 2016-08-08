@@ -1,16 +1,14 @@
 package example.com.nearestservice.Activities;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,7 +17,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -36,7 +33,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-import example.com.nearestservice.Fragments.AddServiceFragment;
 import example.com.nearestservice.R;
 import example.com.nearestservice.Services.AutoService;
 import example.com.nearestservice.Services.BeautySalon;
@@ -48,20 +44,26 @@ import example.com.nearestservice.Services.Tailor;
 import example.com.nearestservice.Services.Watchmaker;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 public class MainActivity extends FragmentActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback {
 
-
-    public static Realm realm;
-
+    private Realm realm;
     private GoogleMap mMap;
-
-    private double x, y;
+    private double userLatitude;
+    private double userLongitude;
     private boolean flag = true;
+    public static final int AUTOSERVICE_INDEX = 0;
+    public static final int BEAUTYSALON_INDEX = 1;
+    public static final int FASTFOOD_INDEX = 2;
+    public static final int PHARMACY_INDEX = 3;
+    public static final int PHOTO_INDEX = 4;
+    public static final int SHOP_INDEX = 5;
+    public static final int TAILOR_INDEX = 6;
+    public static final int WATCHMAKER_INDEX = 7;
+    private final float RADIUS = 0.01f;
 
 
     @Override
@@ -88,8 +90,10 @@ public class MainActivity extends FragmentActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent i = new Intent(MainActivity.this, MapLocationActivity.class);
+                startActivity(i);
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
             }
         });
 
@@ -145,28 +149,28 @@ public class MainActivity extends FragmentActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_autoservice) {
-            readServicesFromDB(AutoService.class, 0);
+            readServicesFromDB(AutoService.class, AUTOSERVICE_INDEX);
 
         } else if (id == R.id.nav_beautySalon) {
-            readServicesFromDB(BeautySalon.class, 1);
+            readServicesFromDB(BeautySalon.class, BEAUTYSALON_INDEX);
 
         } else if (id == R.id.nav_fastFood) {
-            readServicesFromDB(FastFood.class, 2);
+            readServicesFromDB(FastFood.class, FASTFOOD_INDEX);
 
         } else if (id == R.id.nav_pharmacy) {
-            readServicesFromDB(Pharmacy.class, 3);
+            readServicesFromDB(Pharmacy.class, PHARMACY_INDEX);
 
         } else if (id == R.id.nav_Photo) {
-            readServicesFromDB(Photo.class, 4);
+            readServicesFromDB(Photo.class, PHOTO_INDEX);
 
         } else if (id == R.id.nav_Shop) {
-            readServicesFromDB(Shop.class, 5);
+            readServicesFromDB(Shop.class, SHOP_INDEX);
 
         } else if (id == R.id.nav_Tailor) {
-            readServicesFromDB(Tailor.class, 6);
+            readServicesFromDB(Tailor.class, TAILOR_INDEX);
 
         } else if (id == R.id.nav_watchmaker) {
-            readServicesFromDB(Watchmaker.class, 7);
+            readServicesFromDB(Watchmaker.class, WATCHMAKER_INDEX);
 
         } else if (id == R.id.nav_send) {
 
@@ -202,7 +206,7 @@ public class MainActivity extends FragmentActivity
 
 
             if (mMap != null) {
-                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
                 mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
 
@@ -210,11 +214,13 @@ public class MainActivity extends FragmentActivity
                     @Override
                     public void onMyLocationChange(Location arg0) {
                         // TODO Auto-generated method stub
+                        userLatitude = arg0.getLatitude();
+                        userLongitude = arg0.getLongitude();
 
                         if (flag) {
 
                             CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
-                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
+                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
 
                             mMap.moveCamera(center);
                             mMap.animateCamera(zoom);
@@ -243,38 +249,39 @@ public class MainActivity extends FragmentActivity
     }
 
 
-    private void readServicesFromDB(Class c, int i) {
+    private void readServicesFromDB(Class c, int serviceIndex) {
+        mMap.clear();
         realm.beginTransaction();
-        RealmResults rel = realm.where(c).findAll();
-        if(rel.isEmpty()){
+        RealmResults realmResults = realm.where(c).findAll();
+        if (realmResults.isEmpty()) {
             realm.commitTransaction();
             Toast.makeText(MainActivity.this, "0 Services Fond", Toast.LENGTH_SHORT).show();
             return;
         }
         List allServices;
-        switch (i) {
-            case 0:
+        switch (serviceIndex) {
+            case AUTOSERVICE_INDEX:
                 allServices = new ArrayList<AutoService>();
                 break;
-            case 1:
+            case BEAUTYSALON_INDEX:
                 allServices = new ArrayList<BeautySalon>();
                 break;
-            case 2:
+            case FASTFOOD_INDEX:
                 allServices = new ArrayList<FastFood>();
                 break;
-            case 3:
+            case PHARMACY_INDEX:
                 allServices = new ArrayList<Pharmacy>();
                 break;
-            case 4:
+            case PHOTO_INDEX:
                 allServices = new ArrayList<Photo>();
                 break;
-            case 5:
+            case SHOP_INDEX:
                 allServices = new ArrayList<Shop>();
                 break;
-            case 6:
+            case TAILOR_INDEX:
                 allServices = new ArrayList<Tailor>();
                 break;
-            case 7:
+            case WATCHMAKER_INDEX:
                 allServices = new ArrayList<Watchmaker>();
                 break;
             default:
@@ -282,20 +289,20 @@ public class MainActivity extends FragmentActivity
                 break;
         }
 
-        allServices.addAll(rel);
-        Toast.makeText(MainActivity.this, ""+allServices.size()+" Services fond", Toast.LENGTH_SHORT).show();
+        allServices.addAll(realmResults);
+        Toast.makeText(MainActivity.this, "" + allServices.size() + " Services fond", Toast.LENGTH_SHORT).show();
 
         realm.commitTransaction();
-        setServicesPositions(allServices, i);
+        setServicesPositions(allServices, serviceIndex);
     }
 
-    private void setServicesPositions(List servicesPositions, int i) {
+    private void setServicesPositions(List servicesPositions, int serviceIndex) {
 
-        String name, description, category;
+        String  description, category,name,address;
         double rating, latitude, longitude;
         int id;
-        BitmapDescriptor icon;
 
+        BitmapDescriptor icon;
 
         latitude = 0;
         longitude = 0;
@@ -303,145 +310,209 @@ public class MainActivity extends FragmentActivity
         name = "";
         description = "";
         category = "";
-        icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+
 
         id = 0;
 
 
         final int size = servicesPositions.size();
 
-        switch (i) {
-            case 0:
+        switch (serviceIndex) {
+            case AUTOSERVICE_INDEX:
                 for (int j = 0; j < size; ++j) {
                     AutoService selectedService = (AutoService) servicesPositions.get(j);
                     name = selectedService.getName();
                     description = selectedService.getDescription();
+                    address = selectedService.getAddress();
                     category = selectedService.getCategory();
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerautosalon);
                     id = selectedService.getId();
+                    drawMarker(name,description,address,rating,latitude,longitude,icon);
 
                 }
                 break;
-            case 1:
+            case BEAUTYSALON_INDEX:
                 for (int j = 0; j < size; ++j) {
                     BeautySalon selectedService = (BeautySalon) servicesPositions.get(j);
                     name = selectedService.getName();
                     description = selectedService.getDescription();
+                    address = selectedService.getAddress();
                     category = selectedService.getCategory();
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerbeautysalon);
+                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+
                     id = selectedService.getId();
                 }
                 break;
 
-            case 2:
+            case FASTFOOD_INDEX:
                 for (int j = 0; j < size; ++j) {
                     FastFood selectedService = (FastFood) servicesPositions.get(j);
                     name = selectedService.getName();
                     description = selectedService.getDescription();
                     category = selectedService.getCategory();
+                    address = selectedService.getAddress();
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerfastfood);
                     id = selectedService.getId();
+                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+
                 }
                 break;
-            case 3:
+            case PHARMACY_INDEX:
                 for (int j = 0; j < size; ++j) {
                     Pharmacy selectedService = (Pharmacy) servicesPositions.get(j);
                     name = selectedService.getName();
                     description = selectedService.getDescription();
+                    address = selectedService.getAddress();
                     category = selectedService.getCategory();
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerpharmacy);
                     id = selectedService.getId();
+                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+
                 }
                 break;
 
-            case 4:
+            case PHOTO_INDEX:
                 for (int j = 0; j < size; ++j) {
                     Photo selectedService = (Photo) servicesPositions.get(j);
                     name = selectedService.getName();
                     description = selectedService.getDescription();
+                    address = selectedService.getAddress();
                     category = selectedService.getCategory();
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerphoto);
                     id = selectedService.getId();
+                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+
                 }
                 break;
 
-            case 5:
+            case SHOP_INDEX:
                 for (int j = 0; j < size; ++j) {
                     Shop selectedService = (Shop) servicesPositions.get(j);
                     name = selectedService.getName();
                     description = selectedService.getDescription();
+                    address = selectedService.getAddress();
                     category = selectedService.getCategory();
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markershop);
                     id = selectedService.getId();
+                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+
                 }
                 break;
 
-            case 6:
+            case TAILOR_INDEX:
                 for (int j = 0; j < size; ++j) {
                     Tailor selectedService = (Tailor) servicesPositions.get(j);
                     name = selectedService.getName();
                     description = selectedService.getDescription();
+                    address = selectedService.getAddress();
                     category = selectedService.getCategory();
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markertailor);
                     id = selectedService.getId();
+                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+
                 }
                 break;
 
-            case 7:
+            case WATCHMAKER_INDEX:
                 for (int j = 0; j < size; ++j) {
                     Watchmaker selectedService = (Watchmaker) servicesPositions.get(j);
                     name = selectedService.getName();
                     description = selectedService.getDescription();
+                    address = selectedService.getAddress();
                     category = selectedService.getCategory();
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
+                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerwatchmaker);
                     id = selectedService.getId();
+                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+
                 }
                 break;
 
             default:
-                latitude = 0;
-                longitude = 0;
-                rating = 0;
-                name = "";
-                description = "";
-                category = "";
-                icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_24px);
-                id = 0;
+
                 break;
         }
 
-        LatLng latLng = new LatLng(latitude, longitude);
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title(name);
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        Marker mServiceMarker = mMap.addMarker(markerOptions);
-        mServiceMarker.setDraggable(false);
+        if (name.isEmpty()) {
+            name = " ";
+        } else if (name.equals("")) {
+            name = " ";
+        }
+
+
     }
+    public void drawMarker(String name,String description,String address,double rating,double latitude,double longitude,BitmapDescriptor icon){
+        if(userLongitude == 0 && userLatitude == 0){
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+            alertDialog.setTitle("Dear Player");
+            alertDialog.setMessage("Choose Your Soldiers");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
+
+
+        }else if(isNearService(userLatitude,userLongitude,latitude,longitude) <= RADIUS){
+            LatLng latLng = new LatLng(latitude, longitude);
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.title(name+"\n"+address);
+            markerOptions.icon(icon);
+            Marker mServiceMarker = mMap.addMarker(markerOptions);
+            mServiceMarker.setDraggable(false);
+        }else{
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+            alertDialog.setTitle("bbbbbb Player");
+            alertDialog.setMessage("CfgfdgdgdgfdfdfdfSoldiers");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
+        }
+
+
+    }
+    public double isNearService(double userLatitude,double userLongitude,double serviceLatitude,double serviceLongitude){
+        return  Math.sqrt((userLatitude-serviceLatitude)*(userLatitude-serviceLatitude) + (userLongitude-userLongitude)*(userLongitude-userLongitude));
+    }
+//    BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.current_position_tennis_ball)
+//
+//    MarkerOptions markerOptions = new MarkerOptions().position(latLng)
+//            .title("Current Location")
+//            .snippet("Thinking of finding some thing...")
+//            .icon(icon);
+//
+//    mMarker = googleMap.addMarker(markerOptions);
 
 
 }

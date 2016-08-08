@@ -5,37 +5,37 @@
 
         <item
             android:id="@+id/nav_autoservice"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_auto_service"
             android:title="Auto Service"/>
         <item
             android:id="@+id/nav_beautySalon"
-            android:icon="@drawable/ic_beautysalon_24px"
+            android:icon="@drawable/ic_beauty_salon"
             android:title="Beauty Salon"/>
 
         <item
             android:id="@+id/nav_fastFood"
-            android:icon="@drawable/ic_fastbood_24px"
+            android:icon="@drawable/ic_fast_food"
             android:title="Fast Food"/>
         <item
             android:id="@+id/nav_pharmacy"
-            android:icon="@drawable/ic_pharmacy_24px"
+            android:icon="@drawable/ic_pharmacy"
             android:title="Pharmacy"/>
         <item
             android:id="@+id/nav_Photo"
-            android:icon="@drawable/ic_photo_24px"
+            android:icon="@drawable/ic_photo"
             android:title="Photo"/>
 
         <item
             android:id="@+id/nav_Shop"
-            android:icon="@drawable/ic_shop_24px"
+            android:icon="@drawable/ic_shop"
             android:title="Shop"/>
         <item
             android:id="@+id/nav_Tailor"
-            android:icon="@drawable/ic_tailor_24px"
+            android:icon="@drawable/ic_tailor"
             android:title="Tailor"/>
         <item
             android:id="@+id/nav_watchmaker"
-            android:icon="@drawable/ic_watchmaker_24px"
+            android:icon="@drawable/ic_wach_maker"
             android:title="Watchmaker"/>
 
     </group>
