@@ -56,17 +56,12 @@ public class MapLocationActivity extends AppCompatActivity
         LocationListener,
         AddServiceFragment.OnFragmentInteractionListener {
 
-    GoogleMap mGoogleMap;
-    SupportMapFragment mapFrag;
+    private GoogleMap mGoogleMap;
+    private LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+    private Marker mCurrLocationMarker;
 
-    private LatLng selectedPosition;
-
-    LocationRequest mLocationRequest;
-    GoogleApiClient mGoogleApiClient;
-    Location mLastLocation;
-    Marker mCurrLocationMarker;
-
-    private OnActivityInteractionListener mOnActivityInteractionListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +72,13 @@ public class MapLocationActivity extends AppCompatActivity
             checkLocationPermission();
         }
 
-        mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        createFragment();
+    }
+
+
+    private void createFragment() {
+
+        SupportMapFragment mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
 
         Fragment addServiceFragment = new AddServiceFragment();
@@ -85,10 +86,6 @@ public class MapLocationActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.frameLayout_for_addServiceFragment, addServiceFragment);
         fragmentTransaction.commit();
-
-        mOnActivityInteractionListener = (OnActivityInteractionListener) mapFrag;//this
-
-
     }
 
     @Override
@@ -106,7 +103,6 @@ public class MapLocationActivity extends AppCompatActivity
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
@@ -120,12 +116,14 @@ public class MapLocationActivity extends AppCompatActivity
             //ToDO AHAHAccccccccccccccccccccccccccccccccccccccccccccccccc
             //mGoogleMap.setMyLocationEnabled(true);
         }
+
+
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                //mGoogleMap.clear();
-                if(mCurrLocationMarker != null)
+
                 mCurrLocationMarker.setPosition(latLng);
+                findAddress();
 
             }
         });
@@ -146,9 +144,59 @@ public class MapLocationActivity extends AppCompatActivity
             @Override
             public void onMarkerDragEnd(Marker marker) {
 
-                selectedPosition = marker.getPosition();
+                mCurrLocationMarker.setPosition(marker.getPosition());
+                findAddress();
             }
         });
+    }
+
+    private void findAddress() {
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses = new ArrayList<>();
+
+        double latitude = mCurrLocationMarker.getPosition().latitude;
+        double longitude = mCurrLocationMarker.getPosition().longitude;
+
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        if(addresses.size() == 0){
+            AddServiceFragment.addressDetected(new String[]{"","","",""});
+        }else{
+            String[] dirtyAddresses = new String[]{ addresses.get(0).getAddressLine(0),
+                    addresses.get(0).getLocality(), addresses.get(0).getAdminArea(),
+                    addresses.get(0).getCountryName()};
+            String[] nullCheckedAddresses = nullChecker(dirtyAddresses);
+            String[] uniqueAddresses = uniqueChecker(nullCheckedAddresses);
+            AddServiceFragment.addressDetected(uniqueAddresses);
+        }
+
+
+    }
+
+    private String[] nullChecker(String[] strings){
+        for(int i = 0; i < strings.length; ++i){
+            if(strings[0].equals("Unnamed Road")){
+                strings[0] = "";
+            }
+            if(strings[i] == null){
+                strings[i] ="";
+            }
+        }
+        return strings;
+    }
+
+    private String[] uniqueChecker(String[] strings){
+        for(int i = 0; i+1 < strings.length; ++i){
+            if(!(strings[i].equals("")) && strings[i].equals(strings[i+1])){
+                strings[i] = "";
+            }
+        }
+        return strings;
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -188,22 +236,17 @@ public class MapLocationActivity extends AppCompatActivity
             mCurrLocationMarker.remove();
         }
 
-        //Place current location marker
-        final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.title("Current Position");
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         markerOptions.draggable(true);
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
-
-       // selectedPosition = mCurrLocationMarker.getPosition();
-
+        findAddress();
 
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
-
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(MainActivity.ZOOM_LEVEL));
 
 
         mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -291,46 +334,27 @@ public class MapLocationActivity extends AppCompatActivity
 
     @Override
     public void cancelButtonOnAddFragmentPressed() {
-        Geocoder geocoder;
-        List<Address> addresses;
-        geocoder = new Geocoder(this, Locale.getDefault());
-        selectedPosition = mCurrLocationMarker.getPosition();
-
-        try {
-            addresses = geocoder.getFromLocation(selectedPosition.latitude, selectedPosition.longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-        } catch (IOException e) {
-            addresses = new ArrayList<>();
-            Log.e("abov", "exepiti");
-            e.printStackTrace();
-        }
-
-        String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-        String city = addresses.get(0).getLocality();
-        String state = addresses.get(0).getAdminArea();
-        String country = addresses.get(0).getCountryName();
-        //String postalCode = addresses.get(0).getPostalCode();
-        //String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-
-        Toast.makeText(MapLocationActivity.this, "adress "+address+" city "+city+" state "+state+" country "
-                +country, Toast.LENGTH_LONG).show();
-        Log.e("abov","adress"+address+"city"+city+"state"+state+"country"+country);
-        //finish();
-
+        finish();
     }
 
     @Override
-    public void addButtonOnAddFragmentPressed(int serviceIndex, String name, String address, String description) {
-        selectedPosition = mCurrLocationMarker.getPosition();
+    public void addButtonOnAddFragmentPressed(int serviceIndex, String[] params) {
+
+        params = nullChecker(params);
+        String name = params[0];
+        String address = params[1];
+        String description = params[2];
+
+        double latitude = mCurrLocationMarker.getPosition().latitude;
+        double longitude = mCurrLocationMarker.getPosition().longitude;
 
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         RealmResults rel;
         int id = 1;
         switch (serviceIndex) {
-            case MainActivity.AUTOSERVICE_INDEX:
-                //    public AutoService(int id, String name, String description, String address, double rating, double latitude, double longitude) {
-
-                AutoService autoService = new AutoService( name, description, address, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.AUTO_SERVICE_INDEX:
+                AutoService autoService = new AutoService(name, description, address, latitude, longitude);
                 rel = realm.where(AutoService.class).findAll();
                 if (rel.size() != 0) {
                     AutoService autoServiceFromDB = (AutoService) rel.last();
@@ -339,8 +363,8 @@ public class MapLocationActivity extends AppCompatActivity
                 autoService.setId(id);
                 realm.copyToRealm(autoService);
                 break;
-            case MainActivity.BEAUTYSALON_INDEX:
-                BeautySalon beautySalon = new BeautySalon( name, description,address, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.BEAUTY_SALON_INDEX:
+                BeautySalon beautySalon = new BeautySalon(name, description, address, latitude, longitude);
                 rel = realm.where(BeautySalon.class).findAll();
                 if (rel.size() != 0) {
                     BeautySalon beautySalonFromDB = (BeautySalon) rel.last();
@@ -349,8 +373,8 @@ public class MapLocationActivity extends AppCompatActivity
                 beautySalon.setId(id);
                 realm.copyToRealm(beautySalon);
                 break;
-            case MainActivity.FASTFOOD_INDEX:
-                FastFood fastFood = new FastFood(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
+            case MainActivity.FAST_FOOD_INDEX:
+                FastFood fastFood = new FastFood(name, description, address, latitude, longitude);
                 rel = realm.where(FastFood.class).findAll();
                 if (rel.size() != 0) {
                     FastFood fastFoodFromDB = (FastFood) rel.last();
@@ -360,7 +384,7 @@ public class MapLocationActivity extends AppCompatActivity
                 realm.copyToRealm(fastFood);
                 break;
             case MainActivity.PHARMACY_INDEX:
-                Pharmacy pharmacy = new Pharmacy(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
+                Pharmacy pharmacy = new Pharmacy(name, description, address, latitude, longitude);
                 rel = realm.where(Pharmacy.class).findAll();
                 if (rel.size() != 0) {
                     Pharmacy pharmacyFromDB = (Pharmacy) rel.last();
@@ -370,7 +394,7 @@ public class MapLocationActivity extends AppCompatActivity
                 realm.copyToRealm(pharmacy);
                 break;
             case MainActivity.PHOTO_INDEX:
-                Photo photo = new Photo(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
+                Photo photo = new Photo(name, description, address, latitude, longitude);
                 rel = realm.where(Photo.class).findAll();
                 if (rel.size() != 0) {
                     Photo photoFromDB = (Photo) rel.last();
@@ -380,7 +404,7 @@ public class MapLocationActivity extends AppCompatActivity
                 realm.copyToRealm(photo);
                 break;
             case MainActivity.SHOP_INDEX:
-                Shop shop = new Shop(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
+                Shop shop = new Shop(name, description, address, latitude, longitude);
                 rel = realm.where(Shop.class).findAll();
                 if (rel.size() != 0) {
                     Shop shopFromDB = (Shop) rel.last();
@@ -390,7 +414,7 @@ public class MapLocationActivity extends AppCompatActivity
                 realm.copyToRealm(shop);
                 break;
             case MainActivity.TAILOR_INDEX:
-                Tailor tailor = new Tailor(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
+                Tailor tailor = new Tailor(name, description, address, latitude, longitude);
                 rel = realm.where(Tailor.class).findAll();
                 if (rel.size() != 0) {
                     Tailor tailorFromDB = (Tailor) rel.last();
@@ -400,7 +424,7 @@ public class MapLocationActivity extends AppCompatActivity
                 realm.copyToRealm(tailor);
                 break;
             case MainActivity.WATCHMAKER_INDEX:
-                Watchmaker watchmaker = new Watchmaker(name, description,address, selectedPosition.latitude, selectedPosition.longitude);
+                Watchmaker watchmaker = new Watchmaker(name, description, address, latitude, longitude);
                 rel = realm.where(Watchmaker.class).findAll();
                 if (rel.size() != 0) {
                     Watchmaker watchmakerFromDB = (Watchmaker) rel.last();
@@ -418,9 +442,6 @@ public class MapLocationActivity extends AppCompatActivity
 
     }
 
-    public interface OnActivityInteractionListener {
-        void addressDetected(String address);
-    }
 
 
 }

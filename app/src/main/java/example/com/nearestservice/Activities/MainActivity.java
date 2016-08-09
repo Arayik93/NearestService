@@ -1,14 +1,22 @@
 package example.com.nearestservice.Activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.location.Location;
+import android.media.ImageReader;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,8 +25,14 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.formats.NativeAd;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,20 +64,26 @@ public class MainActivity extends FragmentActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback {
 
-    private Realm realm;
-    private GoogleMap mMap;
-    private double userLatitude;
-    private double userLongitude;
-    private boolean flag = true;
-    public static final int AUTOSERVICE_INDEX = 0;
-    public static final int BEAUTYSALON_INDEX = 1;
-    public static final int FASTFOOD_INDEX = 2;
+    public static final int AUTO_SERVICE_INDEX = 0;
+    public static final int BEAUTY_SALON_INDEX = 1;
+    public static final int FAST_FOOD_INDEX = 2;
     public static final int PHARMACY_INDEX = 3;
     public static final int PHOTO_INDEX = 4;
     public static final int SHOP_INDEX = 5;
     public static final int TAILOR_INDEX = 6;
     public static final int WATCHMAKER_INDEX = 7;
+    public static final int ZOOM_LEVEL = 14;
+
+
+
     private final float RADIUS = 0.01f;
+
+    private double userLatitude;
+    private double userLongitude;
+    private boolean flag = true;
+
+    private Realm realm;
+    private GoogleMap mMap;
 
 
     @Override
@@ -76,15 +96,13 @@ public class MainActivity extends FragmentActivity
         Realm.setDefaultConfiguration(realmConfiguration);
         realm = Realm.getDefaultInstance();
 
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //tb = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -106,7 +124,6 @@ public class MainActivity extends FragmentActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
     }
 
 
@@ -122,11 +139,11 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
+    //TODO action bar ?
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -145,17 +162,16 @@ public class MainActivity extends FragmentActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_autoservice) {
-            readServicesFromDB(AutoService.class, AUTOSERVICE_INDEX);
+            readServicesFromDB(AutoService.class, AUTO_SERVICE_INDEX);
 
         } else if (id == R.id.nav_beautySalon) {
-            readServicesFromDB(BeautySalon.class, BEAUTYSALON_INDEX);
+            readServicesFromDB(BeautySalon.class, BEAUTY_SALON_INDEX);
 
         } else if (id == R.id.nav_fastFood) {
-            readServicesFromDB(FastFood.class, FASTFOOD_INDEX);
+            readServicesFromDB(FastFood.class, FAST_FOOD_INDEX);
 
         } else if (id == R.id.nav_pharmacy) {
             readServicesFromDB(Pharmacy.class, PHARMACY_INDEX);
@@ -190,8 +206,9 @@ public class MainActivity extends FragmentActivity
     public void onMapReady(GoogleMap googleMap) {
 
         if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
             mMap = googleMap;
+            mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
+
 
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -204,48 +221,31 @@ public class MainActivity extends FragmentActivity
                 }
             }
 
-
             if (mMap != null) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
 
                 mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
 
 
                     @Override
                     public void onMyLocationChange(Location arg0) {
-                        // TODO Auto-generated method stub
                         userLatitude = arg0.getLatitude();
                         userLongitude = arg0.getLongitude();
 
                         if (flag) {
 
                             CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
-                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
+                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(ZOOM_LEVEL);
 
                             mMap.moveCamera(center);
                             mMap.animateCamera(zoom);
                             flag = false;
                         }
-
-
                     }
                 });
-
             }
-
-
         }
-
-
-        // mMap.setMyLocationEnabled(true);
-        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
-
-        /*mMap.addMarker(new MarkerOptions()
-                .title("Sydney")
-                .snippet("The most populous city in Australia.")
-                .position(sydney));*/
-
-
     }
 
 
@@ -260,13 +260,13 @@ public class MainActivity extends FragmentActivity
         }
         List allServices;
         switch (serviceIndex) {
-            case AUTOSERVICE_INDEX:
+            case AUTO_SERVICE_INDEX:
                 allServices = new ArrayList<AutoService>();
                 break;
-            case BEAUTYSALON_INDEX:
+            case BEAUTY_SALON_INDEX:
                 allServices = new ArrayList<BeautySalon>();
                 break;
-            case FASTFOOD_INDEX:
+            case FAST_FOOD_INDEX:
                 allServices = new ArrayList<FastFood>();
                 break;
             case PHARMACY_INDEX:
@@ -298,11 +298,13 @@ public class MainActivity extends FragmentActivity
 
     private void setServicesPositions(List servicesPositions, int serviceIndex) {
 
-        String  description, category,name,address;
-        double rating, latitude, longitude;
+        String description, category, name, address;
+        double  latitude, longitude;
+        float rating;
         int id;
-
         BitmapDescriptor icon;
+
+
 
         latitude = 0;
         longitude = 0;
@@ -318,7 +320,7 @@ public class MainActivity extends FragmentActivity
         final int size = servicesPositions.size();
 
         switch (serviceIndex) {
-            case AUTOSERVICE_INDEX:
+            case AUTO_SERVICE_INDEX:
                 for (int j = 0; j < size; ++j) {
                     AutoService selectedService = (AutoService) servicesPositions.get(j);
                     name = selectedService.getName();
@@ -330,11 +332,11 @@ public class MainActivity extends FragmentActivity
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markerautosalon);
                     id = selectedService.getId();
-                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+                    drawMarker(name, description, address, rating, latitude, longitude, icon);
 
                 }
                 break;
-            case BEAUTYSALON_INDEX:
+            case BEAUTY_SALON_INDEX:
                 for (int j = 0; j < size; ++j) {
                     BeautySalon selectedService = (BeautySalon) servicesPositions.get(j);
                     name = selectedService.getName();
@@ -345,13 +347,13 @@ public class MainActivity extends FragmentActivity
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markerbeautysalon);
-                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+                    drawMarker(name, description, address, rating, latitude, longitude, icon);
 
                     id = selectedService.getId();
                 }
                 break;
 
-            case FASTFOOD_INDEX:
+            case FAST_FOOD_INDEX:
                 for (int j = 0; j < size; ++j) {
                     FastFood selectedService = (FastFood) servicesPositions.get(j);
                     name = selectedService.getName();
@@ -363,7 +365,7 @@ public class MainActivity extends FragmentActivity
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markerfastfood);
                     id = selectedService.getId();
-                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+                    drawMarker(name, description, address, rating, latitude, longitude, icon);
 
                 }
                 break;
@@ -379,7 +381,7 @@ public class MainActivity extends FragmentActivity
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markerpharmacy);
                     id = selectedService.getId();
-                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+                    drawMarker(name, description, address, rating, latitude, longitude, icon);
 
                 }
                 break;
@@ -396,7 +398,7 @@ public class MainActivity extends FragmentActivity
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markerphoto);
                     id = selectedService.getId();
-                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+                    drawMarker(name, description, address, rating, latitude, longitude, icon);
 
                 }
                 break;
@@ -413,7 +415,7 @@ public class MainActivity extends FragmentActivity
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markershop);
                     id = selectedService.getId();
-                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+                    drawMarker(name, description, address, rating, latitude, longitude, icon);
 
                 }
                 break;
@@ -430,7 +432,7 @@ public class MainActivity extends FragmentActivity
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markertailor);
                     id = selectedService.getId();
-                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+                    drawMarker(name, description, address, rating, latitude, longitude, icon);
 
                 }
                 break;
@@ -447,7 +449,7 @@ public class MainActivity extends FragmentActivity
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markerwatchmaker);
                     id = selectedService.getId();
-                    drawMarker(name,description,address,rating,latitude,longitude,icon);
+                    drawMarker(name, description, address, rating, latitude, longitude, icon);
 
                 }
                 break;
@@ -457,16 +459,11 @@ public class MainActivity extends FragmentActivity
                 break;
         }
 
-        if (name.isEmpty()) {
-            name = " ";
-        } else if (name.equals("")) {
-            name = " ";
-        }
-
-
     }
-    public void drawMarker(String name,String description,String address,double rating,double latitude,double longitude,BitmapDescriptor icon){
-        if(userLongitude == 0 && userLatitude == 0){
+
+    public void drawMarker(String name, String description, String address, float rating,
+                           double latitude, double longitude, BitmapDescriptor icon) {
+        if (userLongitude == 0 && userLatitude == 0) {
             AlertDialog alertDialog = new AlertDialog.Builder(this).create();
             alertDialog.setTitle("Dear Player");
             alertDialog.setMessage("Choose Your Soldiers");
@@ -479,15 +476,19 @@ public class MainActivity extends FragmentActivity
             alertDialog.show();
 
 
-        }else if(isNearService(userLatitude,userLongitude,latitude,longitude) <= RADIUS){
+        } else if (isNearService(userLatitude, userLongitude, latitude, longitude) <= RADIUS) {
             LatLng latLng = new LatLng(latitude, longitude);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
-            markerOptions.title(name+"\n"+address);
+            markerOptions.title("Name: " + name);
+            markerOptions.snippet(description);
             markerOptions.icon(icon);
             Marker mServiceMarker = mMap.addMarker(markerOptions);
             mServiceMarker.setDraggable(false);
-        }else{
+            mServiceMarker.setTag(new TotalServiceInfo( name,  description,
+                     address, rating, icon));
+
+        } else {
             AlertDialog alertDialog = new AlertDialog.Builder(this).create();
             alertDialog.setTitle("bbbbbb Player");
             alertDialog.setMessage("CfgfdgdgdgfdfdfdfSoldiers");
@@ -502,17 +503,81 @@ public class MainActivity extends FragmentActivity
 
 
     }
-    public double isNearService(double userLatitude,double userLongitude,double serviceLatitude,double serviceLongitude){
-        return  Math.sqrt((userLatitude-serviceLatitude)*(userLatitude-serviceLatitude) + (userLongitude-userLongitude)*(userLongitude-userLongitude));
+
+    public double isNearService(double userLatitude, double userLongitude, double serviceLatitude, double serviceLongitude) {
+        return Math.sqrt((userLatitude - serviceLatitude) * (userLatitude - serviceLatitude) +
+                (userLongitude - serviceLongitude) * (userLongitude - serviceLongitude));
     }
-//    BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.current_position_tennis_ball)
-//
-//    MarkerOptions markerOptions = new MarkerOptions().position(latLng)
-//            .title("Current Location")
-//            .snippet("Thinking of finding some thing...")
-//            .icon(icon);
-//
-//    mMarker = googleMap.addMarker(markerOptions);
+
+    class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+
+        private final View myContentsView;
+
+        MyInfoWindowAdapter() {
+            myContentsView = getLayoutInflater().inflate(R.layout.custom_info_contents, null);
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+
+            LinearLayout markersLinearLayout = (LinearLayout)myContentsView.findViewById(R.id.markersLayout);
+            markersLinearLayout.setBackgroundColor(getResources().getColor(R.color.forMarkersLayot));
+
+            TotalServiceInfo mTotalServiceInfo = (TotalServiceInfo) marker.getTag();
+            TextView markerName = ((TextView)myContentsView.findViewById(R.id.name));
+            markerName.setText(mTotalServiceInfo.getName());
+            TextView markerDescription = ((TextView)myContentsView.findViewById(R.id.description));
+            markerDescription.setText(mTotalServiceInfo.getDescription());
+            TextView markerAddress = ((TextView)myContentsView.findViewById(R.id.address));
+            markerAddress.setText(mTotalServiceInfo.getAddress());
+            RatingBar markerRatingBar = ((RatingBar) myContentsView.findViewById(R.id.ratingBar));
+
+            LayerDrawable stars = (LayerDrawable) markerRatingBar.getProgressDrawable();
+            stars.getDrawable(2).setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
+            markerRatingBar.setRating(mTotalServiceInfo.getRating());
+            //ImageView markersImageView = (ImageView) myContentsView.findViewById(R.id.markersLayoutPhoto);
+            return myContentsView;        }
+    }
+
+    class TotalServiceInfo {
+        private String name, description, address;
+        private float rating;
+        private BitmapDescriptor icon;
+
+        public TotalServiceInfo(String name, String description,
+                                String address, float rating, BitmapDescriptor icon) {
+            this.name = name;
+            this.description = description;
+            this.address = address;
+            this.rating = rating;
+            this.icon = icon;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public float getRating() {
+            return rating;
+        }
+
+        public BitmapDescriptor getIcon() {
+            return icon;
+        }
+    }
 
 
 }

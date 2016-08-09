@@ -10,7 +10,7 @@ public class FastFood extends RealmObject {
     private String name;
     private String description;
     private String address;
-    private double rating = 0;
+    private float rating = 0;
     private double latitude;
     private double longitude;
     private String category = "fastFood";
@@ -63,7 +63,7 @@ public class FastFood extends RealmObject {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(float rating) {
         this.rating = rating;
     }
 
