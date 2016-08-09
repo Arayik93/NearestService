@@ -24,7 +24,7 @@ import example.com.nearestservice.R;
  * Use the {@link AddServiceFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AddServiceFragment extends Fragment implements MapLocationActivity.OnActivityInteractionListener {
+public class AddServiceFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     // Service s;
@@ -147,12 +147,12 @@ public class AddServiceFragment extends Fragment implements MapLocationActivity.
         mOnFragmentInteractionListener = null;
     }
 
-    @Override
+    /*@Override
     public void addressDetected(String address) {
 
         EditText address_edt = (EditText) mView.findViewById(R.id.AddFragmentServiceAddress);
         address_edt.setText(address);
-    }
+    }*/
 
     /**
      * This interface must be implemented by activities that contain this
@@ -168,7 +168,7 @@ public class AddServiceFragment extends Fragment implements MapLocationActivity.
         // TODO: Update argument type and name
         //void onFragmentInteraction(Uri uri);
         void cancelButtonOnAddFragmentPressed();
-
+        void addressDetected(String address);
         void addButtonOnAddFragmentPressed(int serviceIndex, String name, String address, String description);
     }
 }
