@@ -10,8 +10,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import example.com.nearestservice.Activities.MapLocationActivity;
 import example.com.nearestservice.R;
 
 /**
@@ -22,19 +24,21 @@ import example.com.nearestservice.R;
  * Use the {@link AddServiceFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AddServiceFragment extends Fragment {
+public class AddServiceFragment extends Fragment implements MapLocationActivity.OnActivityInteractionListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-   // Service s;
+    // Service s;
     private OnFragmentInteractionListener mOnFragmentInteractionListener;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    View mView;
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    //private OnFragmentInteractionListener mListener;
 
     public AddServiceFragment() {
         // Required empty public constructor
@@ -83,20 +87,14 @@ public class AddServiceFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-    /*    final LinearLayout addComponentsLayout = (LinearLayout)view.findViewById(R.id.linearLayoutFor0_3);
-
-        addComponentsLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addComponentsLayout.setAlpha(1);
-                addComponentsLayout.setBackgroundColor(Color.argb(255, 255, 255, 255));
-            }
-        });*/
+        mView = view;
 
         final EditText name_edt = (EditText) view.findViewById(R.id.AddFragmentServiceName);
         final EditText description_edt = (EditText) view.findViewById(R.id.AddFragmentServiceDescription);
         final EditText address_edt = (EditText) view.findViewById(R.id.AddFragmentServiceAddress);
         final Spinner indexOfSelectedItem_spin = (Spinner) view.findViewById(R.id.AddFragmentServiceSpinner);
+        int serviceCount = indexOfSelectedItem_spin.getChildCount();
+
 
         view.findViewById(R.id.button_save_activityAddService).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,7 +134,7 @@ public class AddServiceFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+            mOnFragmentInteractionListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -146,7 +144,14 @@ public class AddServiceFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        mOnFragmentInteractionListener = null;
+    }
+
+    @Override
+    public void addressDetected(String address) {
+
+        EditText address_edt = (EditText) mView.findViewById(R.id.AddFragmentServiceAddress);
+        address_edt.setText(address);
     }
 
     /**
@@ -154,7 +159,7 @@ public class AddServiceFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.

@@ -1,18 +1,19 @@
 
 package example.com.nearestservice.Activities;
 
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.WindowManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -28,6 +29,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import example.com.nearestservice.Fragments.AddServiceFragment;
 import example.com.nearestservice.R;
@@ -60,11 +66,11 @@ public class MapLocationActivity extends AppCompatActivity
     Location mLastLocation;
     Marker mCurrLocationMarker;
 
+    private OnActivityInteractionListener mOnActivityInteractionListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         setContentView(R.layout.for_suport);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -79,6 +85,9 @@ public class MapLocationActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.frameLayout_for_addServiceFragment, addServiceFragment);
         fragmentTransaction.commit();
+
+        mOnActivityInteractionListener = (OnActivityInteractionListener) mapFrag;//this
+
 
     }
 
@@ -111,6 +120,35 @@ public class MapLocationActivity extends AppCompatActivity
             //ToDO AHAHAccccccccccccccccccccccccccccccccccccccccccccccccc
             //mGoogleMap.setMyLocationEnabled(true);
         }
+        mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                //mGoogleMap.clear();
+                if(mCurrLocationMarker != null)
+                mCurrLocationMarker.setPosition(latLng);
+
+            }
+        });
+
+
+        mGoogleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+
+                selectedPosition = marker.getPosition();
+            }
+        });
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -156,33 +194,16 @@ public class MapLocationActivity extends AppCompatActivity
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        markerOptions.draggable(true);
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
-        mCurrLocationMarker.setDraggable(true);
 
-        selectedPosition = mCurrLocationMarker.getPosition();
+       // selectedPosition = mCurrLocationMarker.getPosition();
 
 
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
-        mGoogleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDragStart(Marker marker) {
 
-            }
-
-            @Override
-            public void onMarkerDrag(Marker marker) {
-
-
-            }
-
-            @Override
-            public void onMarkerDragEnd(Marker marker) {
-
-                selectedPosition = marker.getPosition();
-            }
-        });
 
 
         mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -270,12 +291,36 @@ public class MapLocationActivity extends AppCompatActivity
 
     @Override
     public void cancelButtonOnAddFragmentPressed() {
-        finish();
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(this, Locale.getDefault());
+        selectedPosition = mCurrLocationMarker.getPosition();
+
+        try {
+            addresses = geocoder.getFromLocation(selectedPosition.latitude, selectedPosition.longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+        } catch (IOException e) {
+            addresses = new ArrayList<>();
+            Log.e("abov", "exepiti");
+            e.printStackTrace();
+        }
+
+        String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+        String city = addresses.get(0).getLocality();
+        String state = addresses.get(0).getAdminArea();
+        String country = addresses.get(0).getCountryName();
+        //String postalCode = addresses.get(0).getPostalCode();
+        //String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
+
+        Toast.makeText(MapLocationActivity.this, "adress "+address+" city "+city+" state "+state+" country "
+                +country, Toast.LENGTH_LONG).show();
+        Log.e("abov","adress"+address+"city"+city+"state"+state+"country"+country);
+        //finish();
 
     }
 
     @Override
     public void addButtonOnAddFragmentPressed(int serviceIndex, String name, String address, String description) {
+        selectedPosition = mCurrLocationMarker.getPosition();
 
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
@@ -371,6 +416,10 @@ public class MapLocationActivity extends AppCompatActivity
         realm.commitTransaction();
         finish();
 
+    }
+
+    public interface OnActivityInteractionListener {
+        void addressDetected(String address);
     }
 
 
