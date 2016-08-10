@@ -10,7 +10,7 @@ public class AutoService extends RealmObject {
     private String name;
     private String description;
     private String address;
-    private float rating = 0;
+    private String rating ="0";
     private double latitude;
     private double longitude;
     private String category = "autoService";
@@ -23,7 +23,7 @@ public class AutoService extends RealmObject {
         this.longitude = longitude;
     }
 
-    public AutoService(int id, String name, String description, String address, float rating, double latitude, double longitude, String category) {
+    public AutoService(int id, String name, String description, String address, String rating, double latitude, double longitude, String category) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -70,11 +70,11 @@ public class AutoService extends RealmObject {
         this.description = description;
     }
 
-    public double getRating() {
+    public String getRating() {
         return rating;
     }
 
-    public void setRating(float rating) {
+    public void setRating(String rating) {
         this.rating = rating;
     }
 

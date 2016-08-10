@@ -1,22 +1,18 @@
 package example.com.nearestservice.Activities;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
+
 import android.graphics.drawable.LayerDrawable;
 import android.location.Location;
-import android.media.ImageReader;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,14 +21,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.formats.NativeAd;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -207,7 +200,25 @@ public class MainActivity extends FragmentActivity
 
         if (mMap == null) {
             mMap = googleMap;
+
             mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
+            //TODO rating barov dialog bacel , @ntrvac ratingy tal servicein ira id-ov
+            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                @Override
+                public void onInfoWindowClick(Marker marker) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                    alertDialog.setTitle("Dear Player");
+                    alertDialog.setMessage("Choose Your Soldiers");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+
+                }
+            });
 
 
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -300,7 +311,7 @@ public class MainActivity extends FragmentActivity
 
         String description, category, name, address;
         double  latitude, longitude;
-        float rating;
+        String rating;
         int id;
         BitmapDescriptor icon;
 
@@ -308,7 +319,7 @@ public class MainActivity extends FragmentActivity
 
         latitude = 0;
         longitude = 0;
-        rating = 0;
+        rating = "0";
         name = "";
         description = "";
         category = "";
@@ -427,7 +438,7 @@ public class MainActivity extends FragmentActivity
                     description = selectedService.getDescription();
                     address = selectedService.getAddress();
                     category = selectedService.getCategory();
-                    rating = selectedService.getRating();
+                    rating =  selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markertailor);
@@ -461,7 +472,7 @@ public class MainActivity extends FragmentActivity
 
     }
 
-    public void drawMarker(String name, String description, String address, float rating,
+    public void drawMarker(String name, String description, String address, String rating,
                            double latitude, double longitude, BitmapDescriptor icon) {
         if (userLongitude == 0 && userLatitude == 0) {
             AlertDialog alertDialog = new AlertDialog.Builder(this).create();
@@ -487,6 +498,7 @@ public class MainActivity extends FragmentActivity
             mServiceMarker.setDraggable(false);
             mServiceMarker.setTag(new TotalServiceInfo( name,  description,
                      address, rating, icon));
+
 
         } else {
             AlertDialog alertDialog = new AlertDialog.Builder(this).create();
@@ -525,6 +537,8 @@ public class MainActivity extends FragmentActivity
         @Override
         public View getInfoContents(Marker marker) {
 
+            //TODO avelacnel te ani metr e heru amenamotik servisi infowindown bacel avtomat
+
             LinearLayout markersLinearLayout = (LinearLayout)myContentsView.findViewById(R.id.markersLayout);
             markersLinearLayout.setBackgroundColor(getResources().getColor(R.color.forMarkersLayot));
 
@@ -539,18 +553,19 @@ public class MainActivity extends FragmentActivity
 
             LayerDrawable stars = (LayerDrawable) markerRatingBar.getProgressDrawable();
             stars.getDrawable(2).setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
-            markerRatingBar.setRating(mTotalServiceInfo.getRating());
+            markerRatingBar.setRating(4.5f);
+            //markerRatingBar.setRating(Float.valueOf(mTotalServiceInfo.getRating()));
             //ImageView markersImageView = (ImageView) myContentsView.findViewById(R.id.markersLayoutPhoto);
+
             return myContentsView;        }
     }
 
     class TotalServiceInfo {
-        private String name, description, address;
-        private float rating;
+        private String name, description, address,rating;
         private BitmapDescriptor icon;
 
         public TotalServiceInfo(String name, String description,
-                                String address, float rating, BitmapDescriptor icon) {
+                                String address, String rating, BitmapDescriptor icon) {
             this.name = name;
             this.description = description;
             this.address = address;
@@ -570,7 +585,7 @@ public class MainActivity extends FragmentActivity
             return address;
         }
 
-        public float getRating() {
+        public String getRating() {
             return rating;
         }
 

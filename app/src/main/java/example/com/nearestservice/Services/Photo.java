@@ -11,7 +11,7 @@ public class Photo extends RealmObject {
     private String name;
     private String description;
     private String address;
-    private float rating = 0;
+    private String rating = "0";
     private double latitude;
     private double longitude;
     private String category = "photo";
@@ -61,11 +61,11 @@ public class Photo extends RealmObject {
         this.description = description;
     }
 
-    public double getRating() {
+    public String getRating() {
         return rating;
     }
 
-    public void setRating(float rating) {
+    public void setRating(String rating) {
         this.rating = rating;
     }
 
