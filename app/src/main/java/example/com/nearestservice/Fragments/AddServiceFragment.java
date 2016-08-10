@@ -79,17 +79,8 @@ public class AddServiceFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                if(name_edt.getText().toString() == null){
-                    Toast.makeText(getActivity(), "Null a ekel", Toast.LENGTH_SHORT).show();
-                }else if(name_edt.getText().toString().equals("")){
-                    Toast.makeText(getActivity(), "datark a ekel", Toast.LENGTH_SHORT).show();
-                }else if(name_edt.getText().toString().equals(null)){
-                    Toast.makeText(getActivity(), "equals null"+name_edt.getText().toString(), Toast.LENGTH_SHORT).show();
-                }else if(name_edt.getText().toString() == ""){
-                    Toast.makeText(getActivity(), "havasat a bb"+name_edt.getText().toString(), Toast.LENGTH_SHORT).show();
-                }else{Toast.makeText(getActivity(), "vochinch chi mna"+name_edt.getText().toString(), Toast.LENGTH_SHORT).show();}
 
-                //mOnFragmentInteractionListener.cancelButtonOnAddFragmentPressed();
+                mOnFragmentInteractionListener.cancelButtonOnAddFragmentPressed();
             }
         });
     }

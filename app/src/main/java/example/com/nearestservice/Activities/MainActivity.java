@@ -40,6 +40,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
+import example.com.nearestservice.DialogBox;
 import example.com.nearestservice.R;
 import example.com.nearestservice.Services.AutoService;
 import example.com.nearestservice.Services.BeautySalon;
@@ -68,7 +69,6 @@ public class MainActivity extends FragmentActivity
     public static final int ZOOM_LEVEL = 14;
 
 
-
     private final float RADIUS = 0.01f;
 
     private double userLatitude;
@@ -94,7 +94,6 @@ public class MainActivity extends FragmentActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -198,65 +197,60 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        if (mMap == null) {
+        if (mMap == null)
             mMap = googleMap;
 
-            mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
-            //TODO rating barov dialog bacel , @ntrvac ratingy tal servicein ira id-ov
-            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                @Override
-                public void onInfoWindowClick(Marker marker) {
-                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                    alertDialog.setTitle("Dear Player");
-                    alertDialog.setMessage("Choose Your Soldiers");
-                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                    alertDialog.show();
+        mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
+        //TODO rating barov dialog bacel , @ntrvac ratingy tal servicein ira id-ov
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
 
-                }
-            });
+                //Context context, String name, String address, String description, int imageResource, float rating, Activity activity)
+                DialogBox cdd = new DialogBox( "aname", "address", "descrip",
+                        R.mipmap.ic_launcher, 1.5f, MainActivity.this);
+                cdd.show();
+
+            }
+        });
 
 
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        } else {
+            Toast.makeText(MainActivity.this, "You have to accept to enjoy all app's services!", Toast.LENGTH_LONG).show();
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 mMap.setMyLocationEnabled(true);
-            } else {
-                Toast.makeText(MainActivity.this, "You have to accept to enjoy all app's services!", Toast.LENGTH_LONG).show();
-                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    mMap.setMyLocationEnabled(true);
-                }
-            }
-
-            if (mMap != null) {
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-
-                mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-
-
-                    @Override
-                    public void onMyLocationChange(Location arg0) {
-                        userLatitude = arg0.getLatitude();
-                        userLongitude = arg0.getLongitude();
-
-                        if (flag) {
-
-                            CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
-                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(ZOOM_LEVEL);
-
-                            mMap.moveCamera(center);
-                            mMap.animateCamera(zoom);
-                            flag = false;
-                        }
-                    }
-                });
             }
         }
+
+        if (mMap != null) {
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+
+            mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+
+
+                @Override
+                public void onMyLocationChange(Location arg0) {
+                    userLatitude = arg0.getLatitude();
+                    userLongitude = arg0.getLongitude();
+
+                    if (flag) {
+
+                        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
+                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(ZOOM_LEVEL);
+
+                        mMap.moveCamera(center);
+                        mMap.animateCamera(zoom);
+                        flag = false;
+                    }
+                }
+            });
+        }
+
     }
 
 
@@ -310,11 +304,10 @@ public class MainActivity extends FragmentActivity
     private void setServicesPositions(List servicesPositions, int serviceIndex) {
 
         String description, category, name, address;
-        double  latitude, longitude;
+        double latitude, longitude;
         String rating;
         int id;
         BitmapDescriptor icon;
-
 
 
         latitude = 0;
@@ -438,7 +431,7 @@ public class MainActivity extends FragmentActivity
                     description = selectedService.getDescription();
                     address = selectedService.getAddress();
                     category = selectedService.getCategory();
-                    rating =  selectedService.getRating();
+                    rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
                     icon = BitmapDescriptorFactory.fromResource(R.drawable.markertailor);
@@ -496,8 +489,8 @@ public class MainActivity extends FragmentActivity
             markerOptions.icon(icon);
             Marker mServiceMarker = mMap.addMarker(markerOptions);
             mServiceMarker.setDraggable(false);
-            mServiceMarker.setTag(new TotalServiceInfo( name,  description,
-                     address, rating, icon));
+            mServiceMarker.setTag(new TotalServiceInfo(name, description,
+                    address, rating, icon));
 
 
         } else {
@@ -539,15 +532,15 @@ public class MainActivity extends FragmentActivity
 
             //TODO avelacnel te ani metr e heru amenamotik servisi infowindown bacel avtomat
 
-            LinearLayout markersLinearLayout = (LinearLayout)myContentsView.findViewById(R.id.markersLayout);
+            LinearLayout markersLinearLayout = (LinearLayout) myContentsView.findViewById(R.id.markersLayout);
             markersLinearLayout.setBackgroundColor(getResources().getColor(R.color.forMarkersLayot));
 
             TotalServiceInfo mTotalServiceInfo = (TotalServiceInfo) marker.getTag();
-            TextView markerName = ((TextView)myContentsView.findViewById(R.id.name));
+            TextView markerName = ((TextView) myContentsView.findViewById(R.id.name));
             markerName.setText(mTotalServiceInfo.getName());
-            TextView markerDescription = ((TextView)myContentsView.findViewById(R.id.description));
+            TextView markerDescription = ((TextView) myContentsView.findViewById(R.id.description));
             markerDescription.setText(mTotalServiceInfo.getDescription());
-            TextView markerAddress = ((TextView)myContentsView.findViewById(R.id.address));
+            TextView markerAddress = ((TextView) myContentsView.findViewById(R.id.address));
             markerAddress.setText(mTotalServiceInfo.getAddress());
             RatingBar markerRatingBar = ((RatingBar) myContentsView.findViewById(R.id.ratingBar));
 
@@ -557,11 +550,12 @@ public class MainActivity extends FragmentActivity
             //markerRatingBar.setRating(Float.valueOf(mTotalServiceInfo.getRating()));
             //ImageView markersImageView = (ImageView) myContentsView.findViewById(R.id.markersLayoutPhoto);
 
-            return myContentsView;        }
+            return myContentsView;
+        }
     }
 
     class TotalServiceInfo {
-        private String name, description, address,rating;
+        private String name, description, address, rating;
         private BitmapDescriptor icon;
 
         public TotalServiceInfo(String name, String description,
