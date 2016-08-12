@@ -2,24 +2,32 @@ package example.com.nearestservice.DialogBoxes;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import example.com.nearestservice.R;
 
 
-public class DialogBox extends Dialog{
+public class MarkersDialogBox extends Dialog {
 
     private String name, address, description;
     private int imageResource;
     private float rating;
-    public Activity mActivity;
+    private LatLng userPosition;
+    private LatLng servicePosition;
+    private Activity mActivity;
 
-    public DialogBox(String name, String address, String description, int imageResource, float rating, Activity activity) {
+    public MarkersDialogBox(LatLng servicePosition, LatLng userPosition,String name, String address, String description, int imageResource, float rating, Activity activity) {
         super(activity);
         this.name = name;
         this.address = address;
@@ -27,13 +35,15 @@ public class DialogBox extends Dialog{
         this.imageResource = imageResource;
         this.rating = rating;
         this.mActivity = activity;
+        this.userPosition = userPosition;
+        this.servicePosition = servicePosition;
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.dialo_box_l);
+        setContentView(R.layout.markers_dialog_box);
 
 
         RatingBar mRatingBar = (RatingBar) findViewById(R.id.DialogBoxRatingBar);
@@ -41,6 +51,7 @@ public class DialogBox extends Dialog{
         TextView addressTxt = (TextView) findViewById(R.id.DialogBoxAddress);
         TextView descriptionTxt = (TextView) findViewById(R.id.DialogBoxDescription);
         ImageView mImage = (ImageView) findViewById(R.id.DialogBoxImage);
+        Button directionButton = (Button)findViewById(R.id.buttonDirectionMarkersDialogBox);
 
 
         mRatingBar.setRating(rating);
@@ -57,6 +68,18 @@ public class DialogBox extends Dialog{
                 rating = v;
                 Toast.makeText(mActivity, ""+rating, Toast.LENGTH_SHORT).show();
                 //dismiss();
+            }
+        });
+
+        directionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Intent intent = new
+                        Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?" +
+                        "saddr="+ servicePosition.latitude + "," + servicePosition.longitude + "&daddr=" + userPosition.latitude + "," +
+                        userPosition.longitude));
+                intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
+                getContext().startActivity(intent);
             }
         });
 

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
@@ -18,6 +19,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -34,7 +36,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-import example.com.nearestservice.DialogBoxes.DialogBox;
+import example.com.nearestservice.DialogBoxes.MarkersDialogBox;
+import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.R;
 import example.com.nearestservice.Services.AutoService;
 import example.com.nearestservice.Services.BeautySalon;
@@ -213,9 +216,12 @@ public class MainActivity extends FragmentActivity
                 public boolean onMarkerClick(Marker marker) {
 
                     TotalServiceInfo markerInfo = (TotalServiceInfo) marker.getTag();
-                    DialogBox cdd = new DialogBox( markerInfo.getName(), markerInfo.getAddress(), markerInfo.getDescription(),
+                    LatLng latLng = new LatLng(userLatitude, userLongitude);
+                    MarkersDialogBox cdd = new MarkersDialogBox(marker.getPosition(), latLng, markerInfo.getName(), markerInfo.getAddress(), markerInfo.getDescription(),
                             imageResource, Float.valueOf(markerInfo.getRating()), MainActivity.this);
                     cdd.show();
+
+
                     return false;
                 }
             });
@@ -247,7 +253,7 @@ public class MainActivity extends FragmentActivity
             public void onInfoWindowClick(Marker marker) {
 
                 //Context context, String name, String address, String description, int imageResource, float rating, Activity activity)
-                DialogBox cdd = new DialogBox( "aname", "address", "descrip",
+                MarkersDialogBox cdd = new MarkersDialogBox( "aname", "address", "descrip",
                         R.mipmap.ic_launcher, 1.5f, MainActivity.this);
                 cdd.show();
 
@@ -487,17 +493,9 @@ public class MainActivity extends FragmentActivity
     public void drawMarker(String name, String description, String address, String rating,
                            double latitude, double longitude) {
         if (userLongitude == 0 && userLatitude == 0) {
-            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-            alertDialog.setTitle("Dear User");
-            alertDialog.setMessage("Pleasce turn on your wifi mekel lokation :D");
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialog.show();
-
+            GPS_And_WiFi_Dialog_Box gps_and_wiFi_dialog_box = new GPS_And_WiFi_Dialog_Box(MainActivity.this, "GPS");
+            gps_and_wiFi_dialog_box.show();
+            //displayPromptForEnablingGPS(MainActivity.this);
 
         } else if (isNearService(userLatitude, userLongitude, latitude, longitude) <= RADIUS) {
             LatLng latLng = new LatLng(latitude, longitude);
@@ -610,7 +608,6 @@ public class MainActivity extends FragmentActivity
         }
     }
 */
-
 
 }
 

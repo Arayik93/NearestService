@@ -25,14 +25,6 @@ public class AddServiceFragment extends Fragment implements View.OnClickListener
     public AddServiceFragment() {
     }
 
-    //TODO inchneris a petq argern krchatel ?:D
-    public static AddServiceFragment newInstance(String param1, String param2) {
-        AddServiceFragment fragment = new AddServiceFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +80,7 @@ public class AddServiceFragment extends Fragment implements View.OnClickListener
         mOnFragmentInteractionListener = null;
     }
 
-    public static void addressDetected(String[] address) {
+    public static void addressDetected (String[] address) {
         address_edt.setText(address[3] + " " + address[2] + "\n" + address[1] + " " + address[0]);
     }
 

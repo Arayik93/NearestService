@@ -11,17 +11,15 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -43,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import example.com.nearestservice.DialogBoxes.InternetDialogBox;
+import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.Fragments.AddServiceFragment;
 import example.com.nearestservice.R;
 import example.com.nearestservice.Services.AutoService;
@@ -66,9 +64,7 @@ public class MapLocationActivity extends AppCompatActivity
         AddServiceFragment.OnFragmentInteractionListener {
 
     private GoogleMap mGoogleMap;
-    private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
     private Marker mCurrLocationMarker;
 
     private Boolean isConnectedToInternet = false;
@@ -88,41 +84,47 @@ public class MapLocationActivity extends AppCompatActivity
         checkForNetworkInfo();
     }
 
+
     private void checkForNetworkInfo() {
 
-            if (br == null) {
+        if (br == null) {
 
-                br = new BroadcastReceiver() {
+            br = new BroadcastReceiver() {
 
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
+                @Override
+                public void onReceive(Context context, Intent intent) {
 
-                        Bundle extras = intent.getExtras();
+                    Bundle extras = intent.getExtras();
 
-                        NetworkInfo info = (NetworkInfo) extras
-                                .getParcelable("networkInfo");
+                    NetworkInfo info = extras
+                            .getParcelable("networkInfo");
 
-                        NetworkInfo.State state = info.getState();
-
-
-                        if (state == NetworkInfo.State.CONNECTED) {
-                            Toast.makeText(getApplicationContext(), "Internet connection is On", Toast.LENGTH_LONG).show();
-                            isConnectedToInternet = true;
-
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Internet connection is Off", Toast.LENGTH_LONG).show();
-                            isConnectedToInternet = false;
-                            InternetDialogBox internetDialogBox = new InternetDialogBox(MapLocationActivity.this);
-                            internetDialogBox.show();
-                        }
-
+                    NetworkInfo.State state = null;
+                    if (info != null) {
+                        state = info.getState();
                     }
-                };
 
-                final IntentFilter intentFilter = new IntentFilter();
-                intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-                registerReceiver((BroadcastReceiver) br, intentFilter);
+
+                    if (state == NetworkInfo.State.CONNECTED) {
+                        //Toast.makeText(getApplicationContext(), "Internet connection is On", Toast.LENGTH_LONG).show();
+                        isConnectedToInternet = true;
+
+                    } else {
+                        //Toast.makeText(getApplicationContext(), "Internet connection is Off", Toast.LENGTH_LONG).show();
+                        isConnectedToInternet = false;
+                        GPS_And_WiFi_Dialog_Box gpsAndWiFiDialogBox = new GPS_And_WiFi_Dialog_Box(MapLocationActivity.this, "WIFI");
+                        gpsAndWiFiDialogBox.show();
+                        /*InternetDialogBox internetDialogBox = new InternetDialogBox(MapLocationActivity.this);
+                        internetDialogBox.show();*/
+                    }
+
+                }
             };
+
+            final IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            registerReceiver( br, intentFilter);
+        }
     }
 
 
@@ -176,8 +178,6 @@ public class MapLocationActivity extends AppCompatActivity
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
 
 
-        //TODO stugel ardyoq inetin kapnvac a , lokation@ miacac a nor
-
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -197,7 +197,6 @@ public class MapLocationActivity extends AppCompatActivity
 
             @Override
             public void onMarkerDrag(Marker marker) {
-
 
             }
 
@@ -227,16 +226,17 @@ public class MapLocationActivity extends AppCompatActivity
         }
 
 
-        if (addresses.size() == 0) {
-           // AddServiceFragment.addressDetected(new String[]{"", "", "", ""});
+        if (addresses.size() != 0) {
 
-        } else {
-            String[] dirtyAddresses = new String[]{addresses.get(0).getAddressLine(0),
+            /*String[] dirtyAddresses = new String[]{addresses.get(0).getAddressLine(0),
                     addresses.get(0).getLocality(), addresses.get(0).getAdminArea(),
                     addresses.get(0).getCountryName()};
             String[] nullCheckedAddresses = nullChecker(dirtyAddresses);
             String[] uniqueAddresses = uniqueChecker(nullCheckedAddresses);
-            AddServiceFragment.addressDetected(uniqueAddresses);
+            AddServiceFragment.addressDetected(uniqueAddresses);*/
+            AddServiceFragment.addressDetected(uniqueChecker(new String[]{addresses.get(0).getAddressLine(0),
+                    addresses.get(0).getLocality(), addresses.get(0).getAdminArea(),
+                    addresses.get(0).getCountryName()}));
         }
 
 
@@ -257,6 +257,7 @@ public class MapLocationActivity extends AppCompatActivity
     }
 
     private String[] uniqueChecker(String[] strings) {
+        strings = nullChecker(strings);
         for (int i = 0; i + 1 < strings.length; ++i) {
             if (!(strings[i].equals("")) && strings[i].equals(strings[i + 1])) {
                 strings[i] = "";
@@ -276,7 +277,7 @@ public class MapLocationActivity extends AppCompatActivity
 
     @Override
     public void onConnected(Bundle bundle) {
-        mLocationRequest = new LocationRequest();
+        LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
@@ -294,22 +295,12 @@ public class MapLocationActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        /*if (mCurrLocationMarker != null) {
-           // mCurrLocationMarker.remove();
-        }*/
-
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-       /* MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        markerOptions.draggable(true);
-        mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);*/
         mCurrLocationMarker.setPosition(latLng);
         if (isConnectedToInternet) {
             findAddress();
@@ -319,7 +310,6 @@ public class MapLocationActivity extends AppCompatActivity
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(MainActivity.ZOOM_LEVEL));
 
-
         mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -328,6 +318,7 @@ public class MapLocationActivity extends AppCompatActivity
         });
 
         //stop location updates
+        //TODO BU
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
@@ -368,7 +359,7 @@ public class MapLocationActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -384,8 +375,7 @@ public class MapLocationActivity extends AppCompatActivity
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
                         }
-                        //ToDO AHAHAccccccccccccccccccccccccccccccccccccccccccccccccc
-
+                        //ToDO commented
                         //mGoogleMap.setMyLocationEnabled(true);
                     }
 
@@ -395,7 +385,8 @@ public class MapLocationActivity extends AppCompatActivity
                     // functionality that depends on this permission.
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
                 }
-                return;
+                //ToDO commented
+                //return;
             }
 
             // other 'case' lines to check for other
@@ -513,30 +504,6 @@ public class MapLocationActivity extends AppCompatActivity
 
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
-    private void turnOnOffWiFi(boolean b){
-        WifiManager wifiManager = (WifiManager)MapLocationActivity.this.getSystemService(Context.WIFI_SERVICE);
-        wifiManager.setWifiEnabled(b);
-    }
-
-    private void turnOnOffGPS(boolean b){
-        if(b){
-            final LocationManager manager = (LocationManager)this.getSystemService    (Context.LOCATION_SERVICE );
-
-            if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) )
-                Toast.makeText(this, "GPS is disabled!", Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(this, "GPS is enabled!", Toast.LENGTH_LONG).show();
-
-        }
-    }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -546,6 +513,17 @@ public class MapLocationActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
     }
+
+
+
+
+
+    /*private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }*/
 }
 
 
