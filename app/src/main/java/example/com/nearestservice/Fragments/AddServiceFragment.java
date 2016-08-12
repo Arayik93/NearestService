@@ -4,26 +4,28 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import example.com.nearestservice.R;
 
-public class AddServiceFragment extends Fragment {
+public class AddServiceFragment extends Fragment implements View.OnClickListener {
 
     private OnFragmentInteractionListener mOnFragmentInteractionListener;
-    private static View mView;
+
+    private static TextView address_edt;
     private Spinner mSpinner;
+    private TextView name_edt;
+    private TextView description_edt;
 
     public AddServiceFragment() {
     }
 
+    //TODO inchneris a petq argern krchatel ?:D
     public static AddServiceFragment newInstance(String param1, String param2) {
         AddServiceFragment fragment = new AddServiceFragment();
         Bundle args = new Bundle();
@@ -51,11 +53,10 @@ public class AddServiceFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mView = view;
         mSpinner = (Spinner) view.findViewById(R.id.AddFragmentServiceSpinner);
-        final TextView name_edt = ((EditText) view.findViewById(R.id.AddFragmentServiceName));
-        final TextView address_edt = ((EditText) view.findViewById(R.id.AddFragmentServiceAddress));
-        final TextView description_edt = ((EditText) view.findViewById(R.id.AddFragmentServiceDescription));
+        name_edt = ((EditText) view.findViewById(R.id.AddFragmentServiceName));
+        address_edt = ((EditText) view.findViewById(R.id.AddFragmentServiceAddress));
+        description_edt = ((EditText) view.findViewById(R.id.AddFragmentServiceDescription));
 
         Handler h = new Handler();
         h.postDelayed(new Runnable() {
@@ -64,25 +65,9 @@ public class AddServiceFragment extends Fragment {
             }
         }, 1);
 
-        view.findViewById(R.id.button_save_activityAddService).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOnFragmentInteractionListener.addButtonOnAddFragmentPressed(
-                        mSpinner.getSelectedItemPosition(), new String[]{
-                                name_edt.getText().toString(),
-                                address_edt.getText().toString(),
-                                description_edt.getText().toString()});
-            }
-        });
+        view.findViewById(R.id.button_save_activityAddService).setOnClickListener(this);
 
-        view.findViewById(R.id.button_cancel_activityAddService).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-
-                mOnFragmentInteractionListener.cancelButtonOnAddFragmentPressed();
-            }
-        });
+        view.findViewById(R.id.button_cancel_activityAddService).setOnClickListener(this);
     }
 
 
@@ -104,9 +89,25 @@ public class AddServiceFragment extends Fragment {
     }
 
     public static void addressDetected(String[] address) {
-
-        EditText address_edt = (EditText) mView.findViewById(R.id.AddFragmentServiceAddress);
         address_edt.setText(address[3] + " " + address[2] + "\n" + address[1] + " " + address[0]);
+    }
+
+    @Override
+    public void onClick(View view) {
+        int viewId = view.getId();
+        switch (viewId) {
+            case R.id.button_save_activityAddService:
+                mOnFragmentInteractionListener.addButtonOnAddFragmentPressed(
+                        mSpinner.getSelectedItemPosition(), new String[]{
+                                name_edt.getText().toString(),
+                                address_edt.getText().toString(),
+                                description_edt.getText().toString()});
+                break;
+            case R.id.button_cancel_activityAddService:
+                mOnFragmentInteractionListener.cancelButtonOnAddFragmentPressed();
+            default:
+                break;
+        }
     }
 
 

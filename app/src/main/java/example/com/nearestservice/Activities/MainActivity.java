@@ -3,10 +3,7 @@ package example.com.nearestservice.Activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 
-import android.graphics.drawable.LayerDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -21,9 +18,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
-import android.widget.RatingBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -40,7 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-import example.com.nearestservice.DialogBox;
+import example.com.nearestservice.DialogBoxes.DialogBox;
 import example.com.nearestservice.R;
 import example.com.nearestservice.Services.AutoService;
 import example.com.nearestservice.Services.BeautySalon;
@@ -74,6 +68,7 @@ public class MainActivity extends FragmentActivity
     private double userLatitude;
     private double userLongitude;
     private boolean flag = true;
+    private int imageResource;
 
     private Realm realm;
     private GoogleMap mMap;
@@ -102,8 +97,6 @@ public class MainActivity extends FragmentActivity
             public void onClick(View view) {
                 Intent i = new Intent(MainActivity.this, MapLocationActivity.class);
                 startActivity(i);
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
             }
         });
 
@@ -135,7 +128,7 @@ public class MainActivity extends FragmentActivity
         return true;
     }
 
-    //TODO action bar ?
+    //TODO action bar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -200,20 +193,6 @@ public class MainActivity extends FragmentActivity
         if (mMap == null)
             mMap = googleMap;
 
-        mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
-        //TODO rating barov dialog bacel , @ntrvac ratingy tal servicein ira id-ov
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-
-                //Context context, String name, String address, String description, int imageResource, float rating, Activity activity)
-                DialogBox cdd = new DialogBox( "aname", "address", "descrip",
-                        R.mipmap.ic_launcher, 1.5f, MainActivity.this);
-                cdd.show();
-
-            }
-        });
-
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -228,6 +207,18 @@ public class MainActivity extends FragmentActivity
 
         if (mMap != null) {
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+
+                    TotalServiceInfo markerInfo = (TotalServiceInfo) marker.getTag();
+                    DialogBox cdd = new DialogBox( markerInfo.getName(), markerInfo.getAddress(), markerInfo.getDescription(),
+                            imageResource, Float.valueOf(markerInfo.getRating()), MainActivity.this);
+                    cdd.show();
+                    return false;
+                }
+            });
 
 
             mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
@@ -249,6 +240,19 @@ public class MainActivity extends FragmentActivity
                     }
                 }
             });
+
+            // mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
+        /*mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+
+                //Context context, String name, String address, String description, int imageResource, float rating, Activity activity)
+                DialogBox cdd = new DialogBox( "aname", "address", "descrip",
+                        R.mipmap.ic_launcher, 1.5f, MainActivity.this);
+                cdd.show();
+
+            }
+        });*/
         }
 
     }
@@ -334,9 +338,9 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerautosalon);
+                    imageResource = R.drawable.markerautosalon;
                     id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude, icon);
+                    drawMarker(name, description, address, rating, latitude, longitude);
 
                 }
                 break;
@@ -350,8 +354,11 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerbeautysalon);
-                    drawMarker(name, description, address, rating, latitude, longitude, icon);
+                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerbeautysalon);
+                    imageResource = R.drawable.markerbeautysalon;
+
+                    drawMarker(name, description, address, rating, latitude, longitude);
+
 
                     id = selectedService.getId();
                 }
@@ -367,9 +374,11 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerfastfood);
+                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerfastfood);
+                    imageResource = R.drawable.markerfastfood;
+
                     id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude, icon);
+                    drawMarker(name, description, address, rating, latitude, longitude);
 
                 }
                 break;
@@ -383,9 +392,11 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerpharmacy);
+                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerpharmacy);
+                    imageResource = R.drawable.markerpharmacy;
+
                     id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude, icon);
+                    drawMarker(name, description, address, rating, latitude, longitude);
 
                 }
                 break;
@@ -400,9 +411,11 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerphoto);
+                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerphoto);
+                    imageResource = R.drawable.markerphoto;
+
                     id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude, icon);
+                    drawMarker(name, description, address, rating, latitude, longitude);
 
                 }
                 break;
@@ -417,9 +430,11 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markershop);
+                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markershop);
+                    imageResource = R.drawable.markershop;
+
                     id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude, icon);
+                    drawMarker(name, description, address, rating, latitude, longitude);
 
                 }
                 break;
@@ -434,9 +449,11 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markertailor);
+                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markertailor);
+                    imageResource = R.drawable.markertailor;
+
                     id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude, icon);
+                    drawMarker(name, description, address, rating, latitude, longitude);
 
                 }
                 break;
@@ -451,9 +468,11 @@ public class MainActivity extends FragmentActivity
                     rating = selectedService.getRating();
                     latitude = selectedService.getLatitude();
                     longitude = selectedService.getLongitude();
-                    icon = BitmapDescriptorFactory.fromResource(R.drawable.markerwatchmaker);
+                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerwatchmaker);
+                    imageResource = R.drawable.markerwatchmaker;
+
                     id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude, icon);
+                    drawMarker(name, description, address, rating, latitude, longitude);
 
                 }
                 break;
@@ -466,11 +485,11 @@ public class MainActivity extends FragmentActivity
     }
 
     public void drawMarker(String name, String description, String address, String rating,
-                           double latitude, double longitude, BitmapDescriptor icon) {
+                           double latitude, double longitude) {
         if (userLongitude == 0 && userLatitude == 0) {
             AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-            alertDialog.setTitle("Dear Player");
-            alertDialog.setMessage("Choose Your Soldiers");
+            alertDialog.setTitle("Dear User");
+            alertDialog.setMessage("Pleasce turn on your wifi mekel lokation :D");
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -484,13 +503,13 @@ public class MainActivity extends FragmentActivity
             LatLng latLng = new LatLng(latitude, longitude);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
-            markerOptions.title("Name: " + name);
-            markerOptions.snippet(description);
-            markerOptions.icon(icon);
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(imageResource));
+
             Marker mServiceMarker = mMap.addMarker(markerOptions);
             mServiceMarker.setDraggable(false);
+
             mServiceMarker.setTag(new TotalServiceInfo(name, description,
-                    address, rating, icon));
+                    address, rating, imageResource));
 
 
         } else {
@@ -514,12 +533,49 @@ public class MainActivity extends FragmentActivity
                 (userLongitude - serviceLongitude) * (userLongitude - serviceLongitude));
     }
 
-    class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+
+    class TotalServiceInfo {
+
+        private String name, description, address, rating;
+        private int imageResource;
+
+        public TotalServiceInfo(String name, String description, String address, String rating, int imageResource) {
+            this.name = name;
+            this.description = description;
+            this.address = address;
+            this.rating = rating;
+            this.imageResource = imageResource;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public String getRating() {
+            return rating;
+        }
+
+        public int getImageResource() {
+            return imageResource;
+        }
+    }
+
+
+    /*class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
         private final View myContentsView;
 
         MyInfoWindowAdapter() {
-            myContentsView = getLayoutInflater().inflate(R.layout.custom_info_contents, null);
+           myContentsView = getLayoutInflater().inflate(R.layout.custom_info_contents, null);
+
         }
 
         @Override
@@ -553,40 +609,7 @@ public class MainActivity extends FragmentActivity
             return myContentsView;
         }
     }
-
-    class TotalServiceInfo {
-        private String name, description, address, rating;
-        private BitmapDescriptor icon;
-
-        public TotalServiceInfo(String name, String description,
-                                String address, String rating, BitmapDescriptor icon) {
-            this.name = name;
-            this.description = description;
-            this.address = address;
-            this.rating = rating;
-            this.icon = icon;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public String getRating() {
-            return rating;
-        }
-
-        public BitmapDescriptor getIcon() {
-            return icon;
-        }
-    }
+*/
 
 
 }

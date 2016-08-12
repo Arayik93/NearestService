@@ -1,14 +1,15 @@
-package example.com.nearestservice;
+package example.com.nearestservice.DialogBoxes;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import example.com.nearestservice.R;
 
 
 public class DialogBox extends Dialog{
@@ -49,12 +50,13 @@ public class DialogBox extends Dialog{
         nameTxt.setText(name);
         descriptionTxt.setText(description);
 
+        //TODO vercnel rayting@ u tal et servicein
         mRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
                 rating = v;
                 Toast.makeText(mActivity, ""+rating, Toast.LENGTH_SHORT).show();
-                dismiss();
+                //dismiss();
             }
         });
 
