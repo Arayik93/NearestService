@@ -18,7 +18,7 @@ import example.com.nearestservice.R;
 public class InternetDialogBox extends Dialog implements View.OnClickListener {
 
     private final String info = "miacnem wifi-d ?";
-    private final String subInfo = "miacru  wifi-@ vor cragir@ normal ogtagorces lolo";
+    private final String subInfo = "miacru  wifi-@ vor hascenern avtomat generacven axper jan";
     private TextView titleTxt;
     private TextView subTitleTxt;
     private Button okButton;
