@@ -11,13 +11,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import example.com.nearestservice.Activities.MapLocationActivity;
 import example.com.nearestservice.R;
 
 
 public class InternetDialogBox extends Dialog implements View.OnClickListener {
 
-    private final String info = "miacnem wifi-d ?";
+    private final String info = "Turn on Wi-Fi ?";
     private final String subInfo = "miacru  wifi-@ vor hascenern avtomat generacven axper jan";
     private TextView titleTxt;
     private TextView subTitleTxt;
