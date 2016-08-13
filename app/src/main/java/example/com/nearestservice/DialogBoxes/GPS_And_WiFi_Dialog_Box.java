@@ -62,7 +62,7 @@ public class GPS_And_WiFi_Dialog_Box extends Dialog implements View.OnClickListe
 
     private void setViewsParams() {
 
-        final int imageResourceGPS = R.drawable.placeholder;
+        final int imageResourceGPS = R.drawable.gpsbig;
         final int imageResourceWifi = R.drawable.wifiicon;
         final String titleWifi = "Turn on Wi-Fi ?";
         final String titleGPS = "Do you want open GPS setting?";

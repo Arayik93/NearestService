@@ -42,10 +42,11 @@ public class MarkersDialogBox extends Dialog {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //TODO SWIPE
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.markers_dialog_box);
 
-
+//TODO NKARI CHAPERN DZEL
         RatingBar mRatingBar = (RatingBar) findViewById(R.id.DialogBoxRatingBar);
         TextView nameTxt = (TextView) findViewById(R.id.DialogBoxName);
         TextView addressTxt = (TextView) findViewById(R.id.DialogBoxAddress);
@@ -53,7 +54,7 @@ public class MarkersDialogBox extends Dialog {
         ImageView mImage = (ImageView) findViewById(R.id.DialogBoxImage);
         Button directionButton = (Button)findViewById(R.id.buttonDirectionMarkersDialogBox);
 
-
+//TODO reytingi guynern poxel
         mRatingBar.setRating(rating);
         mImage.setImageResource(imageResource);
         nameTxt.setText(name);
