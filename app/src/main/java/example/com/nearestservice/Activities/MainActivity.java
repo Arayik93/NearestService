@@ -582,7 +582,7 @@ public class MainActivity extends FragmentActivity
         @Override
         public View getInfoContents(Marker marker) {
 
-            //TODO avelacnel te ani metr e heru amenamotik servisi infowindown bacel avtomat
+            //TODO avelacnel te ani metr e heru amenamotik servisi infowindown bacel avtomat kam et ge direction@ kani avtomat
 
             LinearLayout markersLinearLayout = (LinearLayout) myContentsView.findViewById(R.id.markersLayout);
             markersLinearLayout.setBackgroundColor(getResources().getColor(R.color.forMarkersLayot));
