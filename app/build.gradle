@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+
 
 android {
 
@@ -27,12 +29,12 @@ android {
 }
 
 
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'com.android.support:design:24.1.1'
-    compile 'io.realm:realm-android:0.87.4'
     compile 'com.google.android.gms:play-services:9.4.0'
     compile 'com.android.support:multidex:1.0.1'
 

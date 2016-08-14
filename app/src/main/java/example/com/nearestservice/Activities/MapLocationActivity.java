@@ -44,16 +44,10 @@ import java.util.Locale;
 import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.Fragments.AddServiceFragment;
 import example.com.nearestservice.R;
-import example.com.nearestservice.Services.AutoService;
-import example.com.nearestservice.Services.BeautySalon;
-import example.com.nearestservice.Services.FastFood;
-import example.com.nearestservice.Services.Pharmacy;
-import example.com.nearestservice.Services.Photo;
-import example.com.nearestservice.Services.Shop;
-import example.com.nearestservice.Services.Tailor;
-import example.com.nearestservice.Services.Watchmaker;
-import io.realm.Realm;
-import io.realm.RealmResults;
+
+import example.com.nearestservice.ServiceCreators.Service;
+import example.com.nearestservice.ServiceCreators.ServiceCreator;
+
 
 
 public class MapLocationActivity extends AppCompatActivity
@@ -121,6 +115,7 @@ public class MapLocationActivity extends AppCompatActivity
                 }
             };
 
+            //TODO chshtel  xndir@
             final IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             registerReceiver( br, intentFilter);
@@ -410,96 +405,10 @@ public class MapLocationActivity extends AppCompatActivity
         double latitude = mCurrLocationMarker.getPosition().latitude;
         double longitude = mCurrLocationMarker.getPosition().longitude;
 
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        RealmResults rel;
-        int id = 1;
-        switch (serviceIndex) {
-            case MainActivity.AUTO_SERVICE_INDEX:
-                AutoService autoService = new AutoService(name, description, address, latitude, longitude);
-                rel = realm.where(AutoService.class).findAll();
-                if (rel.size() != 0) {
-                    AutoService autoServiceFromDB = (AutoService) rel.last();
-                    id = autoServiceFromDB.getId() + 1;
-                }
-                autoService.setId(id);
-                realm.copyToRealm(autoService);
-                break;
-            case MainActivity.BEAUTY_SALON_INDEX:
-                BeautySalon beautySalon = new BeautySalon(name, description, address, latitude, longitude);
-                rel = realm.where(BeautySalon.class).findAll();
-                if (rel.size() != 0) {
-                    BeautySalon beautySalonFromDB = (BeautySalon) rel.last();
-                    id = beautySalonFromDB.getId() + 1;
-                }
-                beautySalon.setId(id);
-                realm.copyToRealm(beautySalon);
-                break;
-            case MainActivity.FAST_FOOD_INDEX:
-                FastFood fastFood = new FastFood(name, description, address, latitude, longitude);
-                rel = realm.where(FastFood.class).findAll();
-                if (rel.size() != 0) {
-                    FastFood fastFoodFromDB = (FastFood) rel.last();
-                    id = fastFoodFromDB.getId() + 1;
-                }
-                fastFood.setId(id);
-                realm.copyToRealm(fastFood);
-                break;
-            case MainActivity.PHARMACY_INDEX:
-                Pharmacy pharmacy = new Pharmacy(name, description, address, latitude, longitude);
-                rel = realm.where(Pharmacy.class).findAll();
-                if (rel.size() != 0) {
-                    Pharmacy pharmacyFromDB = (Pharmacy) rel.last();
-                    id = pharmacyFromDB.getId() + 1;
-                }
-                pharmacy.setId(id);
-                realm.copyToRealm(pharmacy);
-                break;
-            case MainActivity.PHOTO_INDEX:
-                Photo photo = new Photo(name, description, address, latitude, longitude);
-                rel = realm.where(Photo.class).findAll();
-                if (rel.size() != 0) {
-                    Photo photoFromDB = (Photo) rel.last();
-                    id = photoFromDB.getId() + 1;
-                }
-                photo.setId(id);
-                realm.copyToRealm(photo);
-                break;
-            case MainActivity.SHOP_INDEX:
-                Shop shop = new Shop(name, description, address, latitude, longitude);
-                rel = realm.where(Shop.class).findAll();
-                if (rel.size() != 0) {
-                    Shop shopFromDB = (Shop) rel.last();
-                    id = shopFromDB.getId() + 1;
-                }
-                shop.setId(id);
-                realm.copyToRealm(shop);
-                break;
-            case MainActivity.TAILOR_INDEX:
-                Tailor tailor = new Tailor(name, description, address, latitude, longitude);
-                rel = realm.where(Tailor.class).findAll();
-                if (rel.size() != 0) {
-                    Tailor tailorFromDB = (Tailor) rel.last();
-                    id = tailorFromDB.getId() + 1;
-                }
-                tailor.setId(id);
-                realm.copyToRealm(tailor);
-                break;
-            case MainActivity.WATCHMAKER_INDEX:
-                Watchmaker watchmaker = new Watchmaker(name, description, address, latitude, longitude);
-                rel = realm.where(Watchmaker.class).findAll();
-                if (rel.size() != 0) {
-                    Watchmaker watchmakerFromDB = (Watchmaker) rel.last();
-                    id = watchmakerFromDB.getId() + 1;
-                }
-                watchmaker.setId(id);
-                realm.copyToRealm(watchmaker);
-                break;
-            default:
-                Toast.makeText(MapLocationActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
-                break;
-        }
-        realm.commitTransaction();
+        ServiceCreator serviceCreator = MainActivity.serviceTypeDetector(serviceIndex);
+        Service service = serviceCreator.createService();
+        service.saveInDatabase(name, description, address, latitude, longitude);
+
         finish();
 
     }
@@ -513,9 +422,6 @@ public class MapLocationActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
     }
-
-
-
 
 
     /*private boolean isNetworkAvailable() {

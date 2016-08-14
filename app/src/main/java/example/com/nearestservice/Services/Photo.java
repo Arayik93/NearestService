@@ -1,10 +1,16 @@
 package example.com.nearestservice.Services;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import example.com.nearestservice.R;
+import example.com.nearestservice.ServiceCreators.Service;
+import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
 
-public class Photo extends RealmObject {
+public class Photo extends RealmObject implements Service{
 
     @PrimaryKey
     private int id;
@@ -91,5 +97,33 @@ public class Photo extends RealmObject {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    @Override
+    public void saveInDatabase(String name, String description, String address, double latitude, double longitude) {
+        Photo service = new Photo(name, description, address, latitude, longitude);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        RealmResults rel = realm.where(Photo.class).findAll();
+        int id = 1;
+        if (rel.size() != 0) {
+            Photo serviceFromDB = (Photo) rel.last();
+            id = serviceFromDB.getId() + 1;
+        }
+        service.setId(id);
+        realm.copyToRealm(service);
+        realm.commitTransaction();
+    }
+
+    @Override
+    public double distanceFromUser(LatLng usersPosition) {
+        return Math.sqrt((usersPosition.latitude - this.latitude) * (usersPosition.latitude - this.latitude) +
+                (usersPosition.longitude - this.longitude) * (usersPosition.longitude - this.longitude));
+    }
+
+    @Override
+    public UniversalService showYourFullInfo() {
+        return new UniversalService(this.name,this.description, this.address, this.category, this.rating,
+                this.latitude, this.longitude, R.drawable.markerphoto, this.id);
     }
 }

@@ -1,10 +1,21 @@
 package example.com.nearestservice.Services;
 
+import android.util.Log;
+
+import com.google.android.gms.maps.model.LatLng;
+
+import example.com.nearestservice.R;
+import example.com.nearestservice.ServiceCreators.Service;
+import io.realm.Realm;
+import io.realm.RealmModel;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.RealmClass;
 
-
-public class AutoService extends RealmObject {
+@RealmClass
+public class AutoService  implements RealmModel, Service {
     @PrimaryKey
     private int id;
     private String name;
@@ -100,5 +111,35 @@ public class AutoService extends RealmObject {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+
+    @Override
+    public void saveInDatabase(String name, String description, String address, double latitude, double longitude) {
+        Log.e("abov", "save in database");
+        AutoService service = new AutoService(name, description, address, latitude, longitude);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        RealmResults rel = realm.where(AutoService.class).findAll();
+        int id = 1;
+        if (rel.size() != 0) {
+            AutoService serviceFromDB = (AutoService) rel.last();
+            id = serviceFromDB.getId() + 1;
+        }
+        service.setId(id);
+        realm.copyToRealm(service);
+        realm.commitTransaction();
+    }
+
+    @Override
+    public double distanceFromUser(LatLng usersPosition) {
+        return Math.sqrt((usersPosition.latitude - this.latitude) * (usersPosition.latitude - this.latitude) +
+                (usersPosition.longitude - this.longitude) * (usersPosition.longitude - this.longitude));
+    }
+
+    @Override
+    public UniversalService showYourFullInfo() {
+        return new UniversalService(this.name,this.description, this.address, this.category, this.rating,
+        this.latitude, this.longitude,R.drawable.markerautosalon, this.id);
     }
 }

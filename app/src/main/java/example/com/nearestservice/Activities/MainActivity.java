@@ -1,6 +1,5 @@
 package example.com.nearestservice.Activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
@@ -9,7 +8,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,26 +23,25 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import example.com.nearestservice.DialogBoxes.MarkersDialogBox;
 import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.R;
-import example.com.nearestservice.Services.AutoService;
-import example.com.nearestservice.Services.BeautySalon;
-import example.com.nearestservice.Services.FastFood;
-import example.com.nearestservice.Services.Pharmacy;
-import example.com.nearestservice.Services.Photo;
-import example.com.nearestservice.Services.Shop;
-import example.com.nearestservice.Services.Tailor;
-import example.com.nearestservice.Services.Watchmaker;
+import example.com.nearestservice.ServiceCreators.AutoServiceCreator;
+import example.com.nearestservice.ServiceCreators.BeautySalonCreator;
+import example.com.nearestservice.ServiceCreators.FastFoodCreator;
+import example.com.nearestservice.ServiceCreators.PharmacyCreator;
+import example.com.nearestservice.ServiceCreators.PhotoCreator;
+import example.com.nearestservice.ServiceCreators.Service;
+import example.com.nearestservice.ServiceCreators.ServiceCreator;
+import example.com.nearestservice.ServiceCreators.ShopCreator;
+import example.com.nearestservice.ServiceCreators.TailorCreator;
+import example.com.nearestservice.ServiceCreators.WatchmakerCreator;
+import example.com.nearestservice.Services.UniversalService;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
@@ -63,17 +60,16 @@ public class MainActivity extends FragmentActivity
     public static final int WATCHMAKER_INDEX = 7;
     public static final int ZOOM_LEVEL = 14;
 
-
-    private final float RADIUS = 0.01f;
+    private static final float RADIUS = 0.01f;
 
     private double userLatitude;
     private double userLongitude;
     private boolean flag = true;
-    private int imageResource;
+    private int lastSearchedService = -1;
+
 
     private Realm realm;
     private GoogleMap mMap;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,28 +147,28 @@ public class MainActivity extends FragmentActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_autoservice) {
-            readServicesFromDB(AutoService.class, AUTO_SERVICE_INDEX);
+            readServicesFromDB(AUTO_SERVICE_INDEX);
 
         } else if (id == R.id.nav_beautySalon) {
-            readServicesFromDB(BeautySalon.class, BEAUTY_SALON_INDEX);
+            readServicesFromDB(BEAUTY_SALON_INDEX);
 
         } else if (id == R.id.nav_fastFood) {
-            readServicesFromDB(FastFood.class, FAST_FOOD_INDEX);
+            readServicesFromDB(FAST_FOOD_INDEX);
 
         } else if (id == R.id.nav_pharmacy) {
-            readServicesFromDB(Pharmacy.class, PHARMACY_INDEX);
+            readServicesFromDB(PHARMACY_INDEX);
 
         } else if (id == R.id.nav_Photo) {
-            readServicesFromDB(Photo.class, PHOTO_INDEX);
+            readServicesFromDB(PHOTO_INDEX);
 
         } else if (id == R.id.nav_Shop) {
-            readServicesFromDB(Shop.class, SHOP_INDEX);
+            readServicesFromDB(SHOP_INDEX);
 
         } else if (id == R.id.nav_Tailor) {
-            readServicesFromDB(Tailor.class, TAILOR_INDEX);
+            readServicesFromDB(TAILOR_INDEX);
 
         } else if (id == R.id.nav_watchmaker) {
-            readServicesFromDB(Watchmaker.class, WATCHMAKER_INDEX);
+            readServicesFromDB(WATCHMAKER_INDEX);
 
         } else if (id == R.id.nav_send) {
 
@@ -208,23 +204,6 @@ public class MainActivity extends FragmentActivity
 
         if (mMap != null) {
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(Marker marker) {
-
-                    TotalServiceInfo markerInfo = (TotalServiceInfo) marker.getTag();
-                    LatLng latLng = new LatLng(userLatitude, userLongitude);
-                    MarkersDialogBox cdd = new MarkersDialogBox(marker.getPosition(), latLng, markerInfo.getName(), markerInfo.getAddress(), markerInfo.getDescription(),
-                            imageResource, Float.valueOf(markerInfo.getRating()), MainActivity.this);
-                    cdd.show();
-
-
-                    return false;
-                }
-            });
-
-
             mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
 
 
@@ -241,10 +220,14 @@ public class MainActivity extends FragmentActivity
                         mMap.moveCamera(center);
                         mMap.animateCamera(zoom);
                         flag = false;
+                        if(lastSearchedService > 0){
+                            readServicesFromDB(lastSearchedService);
+                        }
                     }
                 }
             });
 
+            //TODO QNNAKREL sra linel chlnelu harc@
             // mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
         /*mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
@@ -261,306 +244,96 @@ public class MainActivity extends FragmentActivity
 
     }
 
-
-    private void readServicesFromDB(Class c, int serviceIndex) {
+    private void readServicesFromDB(int serviceIndex) {
+        lastSearchedService = serviceIndex;
+        //TODO kam chshti gps-n miacac a te che , karoxa hin tvyalnern pahac lini 0 0 (iharke ete usern kyanqum gone mi angam 0 0 ketum exel a )
+        if (userLongitude == 0 && userLatitude == 0) {
+            GPS_And_WiFi_Dialog_Box gps_and_wiFi_dialog_box = new GPS_And_WiFi_Dialog_Box(MainActivity.this, "GPS");
+            gps_and_wiFi_dialog_box.show();
+            return;
+        }
         mMap.clear();
+        ServiceCreator serviceCreator = serviceTypeDetector(serviceIndex);
+        Service service = serviceCreator.createService();
         realm.beginTransaction();
-        RealmResults realmResults = realm.where(c).findAll();
+        RealmResults realmResults = realm.where((Class) service.getClass()).findAll();
+
         if (realmResults.isEmpty()) {
             realm.commitTransaction();
             Toast.makeText(MainActivity.this, "0 Services Fond", Toast.LENGTH_SHORT).show();
             return;
-        }
-        List allServices;
-        switch (serviceIndex) {
-            case AUTO_SERVICE_INDEX:
-                allServices = new ArrayList<AutoService>();
-                break;
-            case BEAUTY_SALON_INDEX:
-                allServices = new ArrayList<BeautySalon>();
-                break;
-            case FAST_FOOD_INDEX:
-                allServices = new ArrayList<FastFood>();
-                break;
-            case PHARMACY_INDEX:
-                allServices = new ArrayList<Pharmacy>();
-                break;
-            case PHOTO_INDEX:
-                allServices = new ArrayList<Photo>();
-                break;
-            case SHOP_INDEX:
-                allServices = new ArrayList<Shop>();
-                break;
-            case TAILOR_INDEX:
-                allServices = new ArrayList<Tailor>();
-                break;
-            case WATCHMAKER_INDEX:
-                allServices = new ArrayList<Watchmaker>();
-                break;
-            default:
-                allServices = new ArrayList();
-                break;
-        }
-
-        allServices.addAll(realmResults);
-        Toast.makeText(MainActivity.this, "" + allServices.size() + " Services fond", Toast.LENGTH_SHORT).show();
-
-        realm.commitTransaction();
-        setServicesPositions(allServices, serviceIndex);
-    }
-
-    private void setServicesPositions(List servicesPositions, int serviceIndex) {
-
-        String description, category, name, address;
-        double latitude, longitude;
-        String rating;
-        int id;
-        BitmapDescriptor icon;
-
-
-        latitude = 0;
-        longitude = 0;
-        rating = "0";
-        name = "";
-        description = "";
-        category = "";
-
-
-        id = 0;
-
-
-        final int size = servicesPositions.size();
-
-        switch (serviceIndex) {
-            case AUTO_SERVICE_INDEX:
-                for (int j = 0; j < size; ++j) {
-                    AutoService selectedService = (AutoService) servicesPositions.get(j);
-                    name = selectedService.getName();
-                    description = selectedService.getDescription();
-                    address = selectedService.getAddress();
-                    category = selectedService.getCategory();
-                    rating = selectedService.getRating();
-                    latitude = selectedService.getLatitude();
-                    longitude = selectedService.getLongitude();
-                    imageResource = R.drawable.markerautosalon;
-                    id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude);
-
-                }
-                break;
-            case BEAUTY_SALON_INDEX:
-                for (int j = 0; j < size; ++j) {
-                    BeautySalon selectedService = (BeautySalon) servicesPositions.get(j);
-                    name = selectedService.getName();
-                    description = selectedService.getDescription();
-                    address = selectedService.getAddress();
-                    category = selectedService.getCategory();
-                    rating = selectedService.getRating();
-                    latitude = selectedService.getLatitude();
-                    longitude = selectedService.getLongitude();
-                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerbeautysalon);
-                    imageResource = R.drawable.markerbeautysalon;
-
-                    drawMarker(name, description, address, rating, latitude, longitude);
-
-
-                    id = selectedService.getId();
-                }
-                break;
-
-            case FAST_FOOD_INDEX:
-                for (int j = 0; j < size; ++j) {
-                    FastFood selectedService = (FastFood) servicesPositions.get(j);
-                    name = selectedService.getName();
-                    description = selectedService.getDescription();
-                    category = selectedService.getCategory();
-                    address = selectedService.getAddress();
-                    rating = selectedService.getRating();
-                    latitude = selectedService.getLatitude();
-                    longitude = selectedService.getLongitude();
-                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerfastfood);
-                    imageResource = R.drawable.markerfastfood;
-
-                    id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude);
-
-                }
-                break;
-            case PHARMACY_INDEX:
-                for (int j = 0; j < size; ++j) {
-                    Pharmacy selectedService = (Pharmacy) servicesPositions.get(j);
-                    name = selectedService.getName();
-                    description = selectedService.getDescription();
-                    address = selectedService.getAddress();
-                    category = selectedService.getCategory();
-                    rating = selectedService.getRating();
-                    latitude = selectedService.getLatitude();
-                    longitude = selectedService.getLongitude();
-                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerpharmacy);
-                    imageResource = R.drawable.markerpharmacy;
-
-                    id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude);
-
-                }
-                break;
-
-            case PHOTO_INDEX:
-                for (int j = 0; j < size; ++j) {
-                    Photo selectedService = (Photo) servicesPositions.get(j);
-                    name = selectedService.getName();
-                    description = selectedService.getDescription();
-                    address = selectedService.getAddress();
-                    category = selectedService.getCategory();
-                    rating = selectedService.getRating();
-                    latitude = selectedService.getLatitude();
-                    longitude = selectedService.getLongitude();
-                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerphoto);
-                    imageResource = R.drawable.markerphoto;
-
-                    id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude);
-
-                }
-                break;
-
-            case SHOP_INDEX:
-                for (int j = 0; j < size; ++j) {
-                    Shop selectedService = (Shop) servicesPositions.get(j);
-                    name = selectedService.getName();
-                    description = selectedService.getDescription();
-                    address = selectedService.getAddress();
-                    category = selectedService.getCategory();
-                    rating = selectedService.getRating();
-                    latitude = selectedService.getLatitude();
-                    longitude = selectedService.getLongitude();
-                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markershop);
-                    imageResource = R.drawable.markershop;
-
-                    id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude);
-
-                }
-                break;
-
-            case TAILOR_INDEX:
-                for (int j = 0; j < size; ++j) {
-                    Tailor selectedService = (Tailor) servicesPositions.get(j);
-                    name = selectedService.getName();
-                    description = selectedService.getDescription();
-                    address = selectedService.getAddress();
-                    category = selectedService.getCategory();
-                    rating = selectedService.getRating();
-                    latitude = selectedService.getLatitude();
-                    longitude = selectedService.getLongitude();
-                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markertailor);
-                    imageResource = R.drawable.markertailor;
-
-                    id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude);
-
-                }
-                break;
-
-            case WATCHMAKER_INDEX:
-                for (int j = 0; j < size; ++j) {
-                    Watchmaker selectedService = (Watchmaker) servicesPositions.get(j);
-                    name = selectedService.getName();
-                    description = selectedService.getDescription();
-                    address = selectedService.getAddress();
-                    category = selectedService.getCategory();
-                    rating = selectedService.getRating();
-                    latitude = selectedService.getLatitude();
-                    longitude = selectedService.getLongitude();
-                    //icon = BitmapDescriptorFactory.fromResource(R.drawable.markerwatchmaker);
-                    imageResource = R.drawable.markerwatchmaker;
-
-                    id = selectedService.getId();
-                    drawMarker(name, description, address, rating, latitude, longitude);
-
-                }
-                break;
-
-            default:
-
-                break;
-        }
-
-    }
-
-    public void drawMarker(String name, String description, String address, String rating,
-                           double latitude, double longitude) {
-        if (userLongitude == 0 && userLatitude == 0) {
-            GPS_And_WiFi_Dialog_Box gps_and_wiFi_dialog_box = new GPS_And_WiFi_Dialog_Box(MainActivity.this, "GPS");
-            gps_and_wiFi_dialog_box.show();
-            //displayPromptForEnablingGPS(MainActivity.this);
-
-        } else if (isNearService(userLatitude, userLongitude, latitude, longitude) <= RADIUS) {
-            LatLng latLng = new LatLng(latitude, longitude);
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(imageResource));
-
-            Marker mServiceMarker = mMap.addMarker(markerOptions);
-            mServiceMarker.setDraggable(false);
-
-            mServiceMarker.setTag(new TotalServiceInfo(name, description,
-                    address, rating, imageResource));
-
-
         } else {
-            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-            alertDialog.setTitle("bbbbbb Player");
-            alertDialog.setMessage("CfgfdgdgdgfdfdfdfSoldiers");
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
+            Toast.makeText(MainActivity.this, "" + realmResults.size() + " Services fond", Toast.LENGTH_SHORT).show();
+        }
+
+        LatLng userLatLang = new LatLng(userLatitude, userLongitude);
+        int servicesOutOfRange = 0;
+        for (int i = 0; i < realmResults.size(); ++i) {
+            service = (Service) realmResults.get(i);
+            if (service.distanceFromUser(userLatLang) < RADIUS) {
+                final UniversalService universalService = service.showYourFullInfo();
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(new LatLng(universalService.getLatitude(),
+                        universalService.getLongitude()));
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(
+                        universalService.getImageResource()));
+                Marker mServiceMarker = mMap.addMarker(markerOptions);
+                mServiceMarker.setDraggable(false);
+               // mServiceMarker.setTag(universalService);
+
+                if (mMap != null) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+
+                           // UniversalService markerInfo = (UniversalService) marker.getTag();
+                            LatLng latLng = new LatLng(userLatitude, userLongitude);
+                            MarkersDialogBox markersDialogBox = new MarkersDialogBox(
+                                    marker.getPosition(), latLng, universalService.getName(),
+                                    universalService.getAddress(), universalService.getDescription(),
+                                    universalService.getImageResource(), Float.valueOf(
+                                    universalService.getRating()), MainActivity.this);
+                            markersDialogBox.show();
+
+                            return false;
                         }
                     });
-            alertDialog.show();
+                }
+
+                } else {
+                ++servicesOutOfRange;
+            }
+
         }
+        if (servicesOutOfRange > 0)
+            Toast.makeText(MainActivity.this, "" + servicesOutOfRange + " Services are out of range", Toast.LENGTH_SHORT).show();
 
-
+        realm.commitTransaction();
     }
 
-    public double isNearService(double userLatitude, double userLongitude, double serviceLatitude, double serviceLongitude) {
-        return Math.sqrt((userLatitude - serviceLatitude) * (userLatitude - serviceLatitude) +
-                (userLongitude - serviceLongitude) * (userLongitude - serviceLongitude));
-    }
-
-
-    class TotalServiceInfo {
-
-        private String name, description, address, rating;
-        private int imageResource;
-
-        public TotalServiceInfo(String name, String description, String address, String rating, int imageResource) {
-            this.name = name;
-            this.description = description;
-            this.address = address;
-            this.rating = rating;
-            this.imageResource = imageResource;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public String getRating() {
-            return rating;
-        }
-
-        public int getImageResource() {
-            return imageResource;
+    public static ServiceCreator serviceTypeDetector(int i) {
+        switch (i) {
+            case MainActivity.AUTO_SERVICE_INDEX:
+                return new AutoServiceCreator();
+            case MainActivity.BEAUTY_SALON_INDEX:
+                return new BeautySalonCreator();
+            case MainActivity.FAST_FOOD_INDEX:
+                return new FastFoodCreator();
+            case MainActivity.PHARMACY_INDEX:
+                return new PharmacyCreator();
+            case MainActivity.PHOTO_INDEX:
+                return new PhotoCreator();
+            case MainActivity.SHOP_INDEX:
+                return new ShopCreator();
+            case MainActivity.TAILOR_INDEX:
+                return new TailorCreator();
+            case MainActivity.WATCHMAKER_INDEX:
+                return new WatchmakerCreator();
+            default:
+                return new AutoServiceCreator();
         }
     }
 
