@@ -31,17 +31,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import example.com.nearestservice.DialogBoxes.MarkersDialogBox;
 import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.R;
-import example.com.nearestservice.ServiceCreators.AutoServiceCreator;
-import example.com.nearestservice.ServiceCreators.BeautySalonCreator;
-import example.com.nearestservice.ServiceCreators.FastFoodCreator;
-import example.com.nearestservice.ServiceCreators.PharmacyCreator;
-import example.com.nearestservice.ServiceCreators.PhotoCreator;
-import example.com.nearestservice.ServiceCreators.Service;
-import example.com.nearestservice.ServiceCreators.ServiceCreator;
-import example.com.nearestservice.ServiceCreators.ShopCreator;
-import example.com.nearestservice.ServiceCreators.TailorCreator;
-import example.com.nearestservice.ServiceCreators.WatchmakerCreator;
-import example.com.nearestservice.Services.UniversalService;
+import example.com.nearestservice.Services.Service;
+import example.com.nearestservice.Services.AutoService;
+import example.com.nearestservice.Services.BeautySalon;
+import example.com.nearestservice.Services.FastFood;
+import example.com.nearestservice.Services.Pharmacy;
+import example.com.nearestservice.Services.Photo;
+import example.com.nearestservice.Services.Shop;
+import example.com.nearestservice.Services.Tailor;
+import example.com.nearestservice.Services.Watchmaker;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
@@ -148,7 +146,6 @@ public class MainActivity extends FragmentActivity
 
         if (id == R.id.nav_autoservice) {
             readServicesFromDB(AUTO_SERVICE_INDEX);
-
         } else if (id == R.id.nav_beautySalon) {
             readServicesFromDB(BEAUTY_SALON_INDEX);
 
@@ -252,18 +249,18 @@ public class MainActivity extends FragmentActivity
             gps_and_wiFi_dialog_box.show();
             return;
         }
-        mMap.clear();
-        ServiceCreator serviceCreator = serviceTypeDetector(serviceIndex);
-        Service service = serviceCreator.createService();
+
+        Service service = serviceTypeDetector(serviceIndex);
         realm.beginTransaction();
         RealmResults realmResults = realm.where((Class) service.getClass()).findAll();
 
         if (realmResults.isEmpty()) {
             realm.commitTransaction();
-            Toast.makeText(MainActivity.this, "0 Services Fond", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Services Fond: 0", Toast.LENGTH_SHORT).show();
             return;
         } else {
-            Toast.makeText(MainActivity.this, "" + realmResults.size() + " Services fond", Toast.LENGTH_SHORT).show();
+            mMap.clear();
+            Toast.makeText(MainActivity.this, "Services fond: " + realmResults.size(), Toast.LENGTH_SHORT).show();
         }
 
         LatLng userLatLang = new LatLng(userLatitude, userLongitude);
@@ -271,16 +268,13 @@ public class MainActivity extends FragmentActivity
         for (int i = 0; i < realmResults.size(); ++i) {
             service = (Service) realmResults.get(i);
             if (service.distanceFromUser(userLatLang) < RADIUS) {
-                final UniversalService universalService = service.showYourFullInfo();
-
                 MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(new LatLng(universalService.getLatitude(),
-                        universalService.getLongitude()));
+                markerOptions.position(service.getPosition());
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(
-                        universalService.getImageResource()));
+                        (int)service.getInfo("imageResource")));
                 Marker mServiceMarker = mMap.addMarker(markerOptions);
                 mServiceMarker.setDraggable(false);
-               // mServiceMarker.setTag(universalService);
+                mServiceMarker.setTag(service);
 
                 if (mMap != null) {
                     mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -289,13 +283,17 @@ public class MainActivity extends FragmentActivity
                         @Override
                         public boolean onMarkerClick(Marker marker) {
 
-                           // UniversalService markerInfo = (UniversalService) marker.getTag();
+                            Service markerInfo = (Service) marker.getTag();
                             LatLng latLng = new LatLng(userLatitude, userLongitude);
+
                             MarkersDialogBox markersDialogBox = new MarkersDialogBox(
-                                    marker.getPosition(), latLng, universalService.getName(),
-                                    universalService.getAddress(), universalService.getDescription(),
-                                    universalService.getImageResource(), Float.valueOf(
-                                    universalService.getRating()), MainActivity.this);
+                                    marker.getPosition(), latLng,
+                                    (String)markerInfo.getInfo("name"),
+                                    (String)markerInfo.getInfo("address"),
+                                    (String)markerInfo.getInfo("description"),
+                                    (int)markerInfo.getInfo("imageResource"),
+                                    Float.valueOf((String)markerInfo.getInfo("rating")),
+                                    MainActivity.this);
                             markersDialogBox.show();
 
                             return false;
@@ -309,31 +307,31 @@ public class MainActivity extends FragmentActivity
 
         }
         if (servicesOutOfRange > 0)
-            Toast.makeText(MainActivity.this, "" + servicesOutOfRange + " Services are out of range", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Out of range services: " + servicesOutOfRange , Toast.LENGTH_SHORT).show();
 
         realm.commitTransaction();
     }
 
-    public static ServiceCreator serviceTypeDetector(int i) {
+    public static Service serviceTypeDetector(int i) {
         switch (i) {
             case MainActivity.AUTO_SERVICE_INDEX:
-                return new AutoServiceCreator();
+                return new AutoService();
             case MainActivity.BEAUTY_SALON_INDEX:
-                return new BeautySalonCreator();
+                return new BeautySalon();
             case MainActivity.FAST_FOOD_INDEX:
-                return new FastFoodCreator();
+                return new FastFood();
             case MainActivity.PHARMACY_INDEX:
-                return new PharmacyCreator();
+                return new Pharmacy();
             case MainActivity.PHOTO_INDEX:
-                return new PhotoCreator();
+                return new Photo();
             case MainActivity.SHOP_INDEX:
-                return new ShopCreator();
+                return new Shop();
             case MainActivity.TAILOR_INDEX:
-                return new TailorCreator();
+                return new Tailor();
             case MainActivity.WATCHMAKER_INDEX:
-                return new WatchmakerCreator();
+                return new Watchmaker();
             default:
-                return new AutoServiceCreator();
+                return new AutoService();
         }
     }
 
@@ -379,6 +377,15 @@ public class MainActivity extends FragmentActivity
         }
     }
 */
+
+
+
+    /*private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }*/
 
 }
 

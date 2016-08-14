@@ -2,44 +2,29 @@ package example.com.nearestservice.Services;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import example.com.nearestservice.Activities.MainActivity;
 import example.com.nearestservice.R;
-import example.com.nearestservice.ServiceCreators.Service;
 import io.realm.Realm;
-import io.realm.RealmObject;
+import io.realm.RealmModel;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.RealmClass;
 
-public class FastFood extends RealmObject implements Service{
+@RealmClass
+public class FastFood implements RealmModel, Service {
 
     @PrimaryKey
     private int id;
     private String name;
     private String description;
     private String address;
-    private String rating = "0";
+    private String rating;
     private double latitude;
     private double longitude;
-    private String category = "fastFood";
+    private int imageResource;
+    private int categoryId;
 
-    public FastFood( String name, String description, String address, double latitude, double longitude) {
-        this.name = name;
-        this.description = description;
-        this.address = address;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
-    public FastFood() {
-
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
+    public FastFood(){}
 
     public int getId() {
         return id;
@@ -63,6 +48,14 @@ public class FastFood extends RealmObject implements Service{
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getRating() {
@@ -89,17 +82,33 @@ public class FastFood extends RealmObject implements Service{
         this.longitude = longitude;
     }
 
-    public String getCategory() {
-        return category;
+    public int getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public int getImageResource() {
+        return imageResource;
+    }
+
+    public void setImageResource(int imageResource) {
+        this.imageResource = imageResource;
     }
 
     @Override
     public void saveInDatabase(String name, String description, String address, double latitude, double longitude) {
-        FastFood service = new FastFood(name, description, address, latitude, longitude);
+        FastFood service = new FastFood();
+        service.setName(name);
+        service.setDescription(description);
+        service.setAddress(address);
+        service.setLatitude(latitude);
+        service.setLongitude(longitude);
+        service.setRating("0");
+        service.setImageResource(R.drawable.markerfastfood);
+        service.setCategoryId(MainActivity.FAST_FOOD_INDEX);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         RealmResults rel = realm.where(FastFood.class).findAll();
@@ -113,6 +122,7 @@ public class FastFood extends RealmObject implements Service{
         realm.commitTransaction();
     }
 
+
     @Override
     public double distanceFromUser(LatLng usersPosition) {
         return Math.sqrt((usersPosition.latitude - this.latitude) * (usersPosition.latitude - this.latitude) +
@@ -120,8 +130,38 @@ public class FastFood extends RealmObject implements Service{
     }
 
     @Override
-    public UniversalService showYourFullInfo() {
-        return new UniversalService(this.name,this.description, this.address, this.category, this.rating,
-                this.latitude, this.longitude, R.drawable.markerfastfood, this.id);
+    public LatLng getPosition() {
+        return new LatLng(this.latitude, this.longitude);
     }
+
+    @Override
+    public Object getInfo(String s) {
+        switch (s){
+            case "id":
+                return this.getId();
+            case "name":
+                return this.getName();
+            case "description":
+                return this.getDescription();
+            case "address":
+                return this.getAddress();
+            case "rating":
+                return this.getRating();
+            case "latitude":
+                return this.getLatitude();
+            case "longitude":
+                return this.getLongitude();
+            case "imageResource":
+                return this.getImageResource();
+            case "categoryId":
+                return this.getCategoryId();
+            default:
+                return null;
+        }
+    }
+
+
 }
+
+
+

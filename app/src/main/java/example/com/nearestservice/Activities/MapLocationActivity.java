@@ -45,9 +45,7 @@ import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.Fragments.AddServiceFragment;
 import example.com.nearestservice.R;
 
-import example.com.nearestservice.ServiceCreators.Service;
-import example.com.nearestservice.ServiceCreators.ServiceCreator;
-
+import example.com.nearestservice.Services.Service;
 
 
 public class MapLocationActivity extends AppCompatActivity
@@ -68,7 +66,7 @@ public class MapLocationActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.for_suport);
+        setContentView(R.layout.map_location_activity);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -115,7 +113,6 @@ public class MapLocationActivity extends AppCompatActivity
                 }
             };
 
-            //TODO chshtel  xndir@
             final IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             registerReceiver( br, intentFilter);
@@ -139,6 +136,7 @@ public class MapLocationActivity extends AppCompatActivity
     public void onPause() {
         super.onPause();
 
+        unregisterReceiver(br);
         //stop location updates when Activity is no longer active
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
@@ -222,13 +220,6 @@ public class MapLocationActivity extends AppCompatActivity
 
 
         if (addresses.size() != 0) {
-
-            /*String[] dirtyAddresses = new String[]{addresses.get(0).getAddressLine(0),
-                    addresses.get(0).getLocality(), addresses.get(0).getAdminArea(),
-                    addresses.get(0).getCountryName()};
-            String[] nullCheckedAddresses = nullChecker(dirtyAddresses);
-            String[] uniqueAddresses = uniqueChecker(nullCheckedAddresses);
-            AddServiceFragment.addressDetected(uniqueAddresses);*/
             AddServiceFragment.addressDetected(uniqueChecker(new String[]{addresses.get(0).getAddressLine(0),
                     addresses.get(0).getLocality(), addresses.get(0).getAdminArea(),
                     addresses.get(0).getCountryName()}));
@@ -313,7 +304,6 @@ public class MapLocationActivity extends AppCompatActivity
         });
 
         //stop location updates
-        //TODO BU
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
@@ -405,31 +395,13 @@ public class MapLocationActivity extends AppCompatActivity
         double latitude = mCurrLocationMarker.getPosition().latitude;
         double longitude = mCurrLocationMarker.getPosition().longitude;
 
-        ServiceCreator serviceCreator = MainActivity.serviceTypeDetector(serviceIndex);
-        Service service = serviceCreator.createService();
-        service.saveInDatabase(name, description, address, latitude, longitude);
+        Service service = MainActivity.serviceTypeDetector(serviceIndex);
+        service.saveInDatabase( name, description, address, latitude, longitude);
 
         finish();
 
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-
-    /*private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }*/
 }
 
 

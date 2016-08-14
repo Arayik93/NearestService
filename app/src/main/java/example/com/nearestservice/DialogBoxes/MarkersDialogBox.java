@@ -29,7 +29,8 @@ public class MarkersDialogBox extends Dialog {
     private LatLng servicePosition;
     private Activity mActivity;
 
-    public MarkersDialogBox(LatLng servicePosition, LatLng userPosition,String name, String address, String description, int imageResource, float rating, Activity activity) {
+    public MarkersDialogBox(LatLng servicePosition, LatLng userPosition,String name, String address,
+                            String description, int imageResource, float rating, Activity activity) {
         super(activity);
         this.name = name;
         this.address = address;
@@ -65,7 +66,6 @@ public class MarkersDialogBox extends Dialog {
         mImage.setImageResource(imageResource);
         nameTxt.setText(name);
         addressTxt.setText(address);
-        nameTxt.setText(name);
         descriptionTxt.setText(description);
 
         //TODO vercnel rayting@ u tal et servicein
