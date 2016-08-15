@@ -284,16 +284,17 @@ public class MainActivity extends FragmentActivity
                         public boolean onMarkerClick(Marker marker) {
 
                             Service markerInfo = (Service) marker.getTag();
-                            LatLng latLng = new LatLng(userLatitude, userLongitude);
+                            LatLng userLatLang = new LatLng(userLatitude, userLongitude);
 
                             MarkersDialogBox markersDialogBox = new MarkersDialogBox(
-                                    marker.getPosition(), latLng,
+                                    marker.getPosition(), userLatLang,
                                     (String)markerInfo.getInfo("name"),
                                     (String)markerInfo.getInfo("address"),
                                     (String)markerInfo.getInfo("description"),
                                     (int)markerInfo.getInfo("imageResource"),
                                     Float.valueOf((String)markerInfo.getInfo("rating")),
-                                    MainActivity.this);
+                                    MainActivity.this,
+                                    markerInfo.distanceFromUser(userLatLang));
                             markersDialogBox.show();
 
                             return false;

@@ -48,8 +48,8 @@
                 android:title="Add New Service"/>
             <item
                 android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send"/>
+                android:icon="@drawable/star"
+                android:title="Favorites"/>
         </menu>
     </item>
 

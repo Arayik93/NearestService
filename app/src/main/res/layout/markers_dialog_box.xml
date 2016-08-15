@@ -8,7 +8,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/DialogBoxName"/>
+        android:id="@+id/DialogBoxName"
+        android:textColor="#000000"/>
 
     <ImageView
         android:layout_width="wrap_content"
@@ -19,18 +20,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/DialogBoxDescription"/>
+        android:id="@+id/DialogBoxDescription"
+        android:textColor="#000000"/>
 
     <RatingBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/DialogBoxRatingBar"/>
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_to_favorites"
+        android:id="@+id/DialogBoxCheckBox"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/DialogBoxAddress"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"
+        android:textColor="#000000"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/DialogBoxDistance"
+        android:textSize="14dp"
+        android:textColor="#000000"/>
 
     <Button
         android:textAllCaps="false"
