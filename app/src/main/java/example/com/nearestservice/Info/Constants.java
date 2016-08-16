@@ -6,7 +6,7 @@ import example.com.nearestservice.R;
  * Created by Abov on 8/16/2016.
  */
 public class Constants {
-
+//editerd sddsdsdsds
     public static final int AUTO_SERVICE_INDEX = R.drawable.markerautosalon;
     public static final int BEAUTY_SALON_INDEX = R.drawable.markerbeautysalon;
     public static final int FAST_FOOD_INDEX = R.drawable.markerfastfood;
