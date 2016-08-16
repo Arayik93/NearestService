@@ -184,8 +184,6 @@ public class MainActivity extends FragmentActivity
 //        } else
  if (id == R.id.nav_add) {
 
-
-
             Intent i = new Intent(MainActivity.this, MapLocationActivity.class);
             startActivity(i);
         }
