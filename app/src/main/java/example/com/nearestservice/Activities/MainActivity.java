@@ -212,7 +212,7 @@ public class MainActivity extends FragmentActivity
         /*mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-
+//
                 //Context context, String name, String address, String description, int imageResource, float rating, Activity activity)
                 MarkersDialogBox cdd = new MarkersDialogBox( "aname", "address", "descrip",
                         R.mipmap.ic_launcher, 1.5f, MainActivity.this);
