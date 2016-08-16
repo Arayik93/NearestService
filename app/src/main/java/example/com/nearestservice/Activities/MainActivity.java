@@ -32,6 +32,7 @@ import example.com.nearestservice.DialogBoxes.MarkersDialogBox;
 import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.Info.Constants;
 import example.com.nearestservice.R;
+import example.com.nearestservice.Services.FavoriteService;
 import example.com.nearestservice.Services.Service;
 
 import io.realm.Realm;
@@ -41,6 +42,17 @@ import io.realm.RealmResults;
 public class MainActivity extends FragmentActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback {
+
+
+
+
+
+    int a = 100;
+
+
+
+
+
 
     private double userLatitude;
     private double userLongitude;
@@ -150,6 +162,7 @@ public class MainActivity extends FragmentActivity
             readServicesFromDB(Constants.WATCHMAKER_INDEX);
 
         } else if (id == R.id.nav_send) {
+            readFavoriteServicesFromDB();
 
             //TODO avelacnel favoritnern
         } else if (id == R.id.nav_add) {
@@ -207,19 +220,6 @@ public class MainActivity extends FragmentActivity
                 }
             });
 
-            //TODO QNNAKREL sra linel chlnelu harc@
-            // mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
-        /*mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-//
-                //Context context, String name, String address, String description, int imageResource, float rating, Activity activity)
-                MarkersDialogBox cdd = new MarkersDialogBox( "aname", "address", "descrip",
-                        R.mipmap.ic_launcher, 1.5f, MainActivity.this);
-                cdd.show();
-
-            }
-        });*/
         }
 
     }
@@ -233,9 +233,9 @@ public class MainActivity extends FragmentActivity
             return;
         }
 
-        Service service = new Service();
+
+        Service service;
         realm.beginTransaction();
-        //Dog myDog = realm.where(Dog.class).equalTo("age", 1).findFirst();
         RealmResults realmResults = realm.where(Service.class).equalTo("imageResource", serviceIndex).findAll();
 
         if (realmResults.isEmpty()) {
@@ -252,8 +252,6 @@ public class MainActivity extends FragmentActivity
         for (int i = 0; i < realmResults.size(); ++i) {
             service = (Service) realmResults.get(i);
             if (service.distanceFromUser(userLatLang) < Constants.RADIUS) {
-                final LatLng servicePosition = new LatLng(service.getLatitude(), service.getLongitude());
-
 
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position(new LatLng(service.getLatitude(), service.getLongitude()));
@@ -272,12 +270,11 @@ public class MainActivity extends FragmentActivity
                             Service markerInfo = (Service) marker.getTag();
                             LatLng userLatLang = new LatLng(userLatitude, userLongitude);
 
-                            MarkersDialogBox markersDialogBox = new MarkersDialogBox(
-                                    servicePosition, userLatLang, markerInfo.getName(),
-                                    markerInfo.getAddress(), markerInfo.getDescription(),
-                                    markerInfo.getImageResource(), markerInfo.getRating(),
-                                    MainActivity.this, markerInfo.distanceFromUser(userLatLang));
+                            MarkersDialogBox markersDialogBox = new MarkersDialogBox(userLatLang,
+                                    markerInfo, MainActivity.this);
                             markersDialogBox.show();
+
+                            //TODO yanm inch  ? :D
                             return false;
                         }
                     });
@@ -295,54 +292,71 @@ public class MainActivity extends FragmentActivity
     }
 
 
-    /*class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
-
-        private final View myContentsView;
-
-        MyInfoWindowAdapter() {
-           myContentsView = getLayoutInflater().inflate(R.layout.custom_info_contents, null);
-
+    private void readFavoriteServicesFromDB() {
+        //TODO kam chshti gps-n miacac a te che , karoxa hin tvyalnern pahac lini 0 0 (iharke ete usern kyanqum gone mi angam 0 0 ketum exel a )
+        if (userLongitude == 0 && userLatitude == 0) {
+            GPS_And_WiFi_Dialog_Box gps_and_wiFi_dialog_box = new GPS_And_WiFi_Dialog_Box(MainActivity.this, "GPS");
+            gps_and_wiFi_dialog_box.show();
+            return;
         }
 
-        @Override
-        public View getInfoWindow(Marker marker) {
-            return null;
+
+        FavoriteService service;
+        realm.beginTransaction();
+        RealmResults realmResults = realm.where(FavoriteService.class).findAll();
+
+        if (realmResults.isEmpty()) {
+            realm.commitTransaction();
+            Toast.makeText(MainActivity.this, "Services Fond: 0", Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            mMap.clear();
+            Toast.makeText(MainActivity.this, "Services fond: " + realmResults.size(), Toast.LENGTH_SHORT).show();
         }
 
-        @Override
-        public View getInfoContents(Marker marker) {
+        LatLng userLatLang = new LatLng(userLatitude, userLongitude);
+        int servicesOutOfRange = 0;
+        for (int i = 0; i < realmResults.size(); ++i) {
+            service = (FavoriteService) realmResults.get(i);
+            if (service.distanceFromUser(userLatLang) < Constants.RADIUS) {
 
-            LinearLayout markersLinearLayout = (LinearLayout) myContentsView.findViewById(R.id.markersLayout);
-            markersLinearLayout.setBackgroundColor(getResources().getColor(R.color.forMarkersLayot));
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(new LatLng(service.getLatitude(), service.getLongitude()));
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(service.getImageResource()));
+                Marker mServiceMarker = mMap.addMarker(markerOptions);
+                mServiceMarker.setDraggable(false);
+                mServiceMarker.setTag(service);
 
-            TotalServiceInfo mTotalServiceInfo = (TotalServiceInfo) marker.getTag();
-            TextView markerName = ((TextView) myContentsView.findViewById(R.id.name));
-            markerName.setText(mTotalServiceInfo.getName());
-            TextView markerDescription = ((TextView) myContentsView.findViewById(R.id.description));
-            markerDescription.setText(mTotalServiceInfo.getDescription());
-            TextView markerAddress = ((TextView) myContentsView.findViewById(R.id.address));
-            markerAddress.setText(mTotalServiceInfo.getAddress());
-            RatingBar markerRatingBar = ((RatingBar) myContentsView.findViewById(R.id.ratingBar));
+                if (mMap != null) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-            LayerDrawable stars = (LayerDrawable) markerRatingBar.getProgressDrawable();
-            stars.getDrawable(2).setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
-            markerRatingBar.setRating(4.5f);
-            //markerRatingBar.setRating(Float.valueOf(mTotalServiceInfo.getRating()));
-            //ImageView markersImageView = (ImageView) myContentsView.findViewById(R.id.markersLayoutPhoto);
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
 
-            return myContentsView;
+                            Service markerInfo = (Service) marker.getTag();
+                            LatLng userLatLang = new LatLng(userLatitude, userLongitude);
+
+                            MarkersDialogBox markersDialogBox = new MarkersDialogBox(userLatLang,
+                                    markerInfo, MainActivity.this);
+                            markersDialogBox.show();
+
+                            //TODO yanm inch  ? :D
+                            return false;
+                        }
+                    });
+                }
+
+            } else {
+                ++servicesOutOfRange;
+            }
+
         }
+        if (servicesOutOfRange > 0)
+            Toast.makeText(MainActivity.this, "Out of range services: " + servicesOutOfRange , Toast.LENGTH_SHORT).show();
+
+        realm.commitTransaction();
     }
-*/
-
-
-
-    /*private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }*/
 
 }
 
