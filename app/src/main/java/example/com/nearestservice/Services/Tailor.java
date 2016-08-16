@@ -1,3 +1,4 @@
+/*
 package example.com.nearestservice.Services;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -160,4 +161,4 @@ public class Tailor implements RealmModel, Service {
         }
     }
 
-}
+}*/

@@ -43,9 +43,12 @@ import java.util.Locale;
 
 import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.Fragments.AddServiceFragment;
+import example.com.nearestservice.Info.Constants;
 import example.com.nearestservice.R;
 
 import example.com.nearestservice.Services.Service;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 public class MapLocationActivity extends AppCompatActivity
@@ -294,7 +297,7 @@ public class MapLocationActivity extends AppCompatActivity
 
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(MainActivity.ZOOM_LEVEL));
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(Constants.ZOOM_LEVEL));
 
         mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -388,19 +391,51 @@ public class MapLocationActivity extends AppCompatActivity
     public void addButtonOnAddFragmentPressed(int serviceIndex, String[] params) {
 
         params = nullChecker(params);
-        String name = params[0];
-        String address = params[1];
-        String description = params[2];
+        serviceIndex = imageResourceGenerator(serviceIndex);
+        Service service = new Service(params[0],params[1], params[2],
+                mCurrLocationMarker.getPosition().latitude,
+                mCurrLocationMarker.getPosition().longitude, serviceIndex);
 
-        double latitude = mCurrLocationMarker.getPosition().latitude;
-        double longitude = mCurrLocationMarker.getPosition().longitude;
-
-        Service service = MainActivity.serviceTypeDetector(serviceIndex);
-        service.saveInDatabase( name, description, address, latitude, longitude);
-
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        RealmResults rel = realm.where(Service.class).findAll();
+        int id = 1;
+        if (rel.size() != 0) {
+            Service serviceFromDB = (Service) rel.last();
+            id = serviceFromDB.getId() + 1;
+        }
+        service.setId(id);
+        realm.copyToRealm(service);
+        realm.commitTransaction();
+        //TODO Nare ete harmar es gtnum avelacra
+        //Toast.makeText(MapLocationActivity.this, params[0]+ "barehajox avelacvel a", Toast.LENGTH_SHORT).show();
         finish();
 
     }
+
+    private int imageResourceGenerator(int serviceIndex) {
+        switch (serviceIndex){
+            case 0:
+                return Constants.AUTO_SERVICE_INDEX;
+            case 1:
+                return Constants.BEAUTY_SALON_INDEX;
+            case 2:
+                return Constants.FAST_FOOD_INDEX;
+            case 3:
+                return Constants.PHARMACY_INDEX;
+            case 4:
+                return Constants.PHOTO_INDEX;
+            case 5:
+                return Constants.SHOP_INDEX;
+            case 6:
+                return Constants.TAILOR_INDEX;
+            case 7:
+                return Constants.WATCHMAKER_INDEX;
+            default:
+                throw new RuntimeException("unknown serviceIndex in imageResourceGenerator");
+        }
+    }
+
 
 }
 

@@ -1,23 +1,44 @@
 package example.com.nearestservice.Services;
 
+import io.realm.RealmModel;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.RealmClass;
 
 /**
  * Created by Abov on 8/14/2016.
  */
-public class FavoriteService extends RealmObject {
+@RealmClass
+public class FavoriteService implements RealmModel {
     @PrimaryKey
     private int id;
     private String name;
     private String description;
     private String address;
-    private String rating;
     private double latitude;
     private double longitude;
+    private float rating = 5f;
     private int imageResource;
 
+    public FavoriteService(String name, String description, String address, double latitude,
+                           double longitude, int imageResource) {
+        this.name = name;
+        this.description = description;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.imageResource = imageResource;
+    }
+
     public FavoriteService() {
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
     }
 
     public int getId() {
@@ -50,14 +71,6 @@ public class FavoriteService extends RealmObject {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getRating() {
-        return rating;
-    }
-
-    public void setRating(String rating) {
-        this.rating = rating;
     }
 
     public double getLatitude() {

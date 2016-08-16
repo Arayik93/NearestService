@@ -28,11 +28,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/DialogBoxRatingBar"/>
 
-    <CheckBox
+    <Button
+        android:textAllCaps="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/add_to_favorites"
-        android:id="@+id/DialogBoxCheckBox"/>
+        android:text="@string/make_favorite"
+        android:id="@+id/buttonMarkersDialogBox"/>
 
     <TextView
         android:layout_width="wrap_content"

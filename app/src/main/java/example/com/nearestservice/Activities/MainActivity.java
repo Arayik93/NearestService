@@ -30,16 +30,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import example.com.nearestservice.DialogBoxes.MarkersDialogBox;
 import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
+import example.com.nearestservice.Info.Constants;
 import example.com.nearestservice.R;
 import example.com.nearestservice.Services.Service;
-import example.com.nearestservice.Services.AutoService;
-import example.com.nearestservice.Services.BeautySalon;
-import example.com.nearestservice.Services.FastFood;
-import example.com.nearestservice.Services.Pharmacy;
-import example.com.nearestservice.Services.Photo;
-import example.com.nearestservice.Services.Shop;
-import example.com.nearestservice.Services.Tailor;
-import example.com.nearestservice.Services.Watchmaker;
+
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
@@ -48,22 +42,10 @@ public class MainActivity extends FragmentActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback {
 
-    public static final int AUTO_SERVICE_INDEX = 0;
-    public static final int BEAUTY_SALON_INDEX = 1;
-    public static final int FAST_FOOD_INDEX = 2;
-    public static final int PHARMACY_INDEX = 3;
-    public static final int PHOTO_INDEX = 4;
-    public static final int SHOP_INDEX = 5;
-    public static final int TAILOR_INDEX = 6;
-    public static final int WATCHMAKER_INDEX = 7;
-    public static final int ZOOM_LEVEL = 14;
-
-    private static final float RADIUS = 0.01f;
-
     private double userLatitude;
     private double userLongitude;
     private boolean flag = true;
-    private int lastSearchedService = -1;
+    private int lastSearchedService = 0;
 
 
     private Realm realm;
@@ -145,30 +127,31 @@ public class MainActivity extends FragmentActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_autoservice) {
-            readServicesFromDB(AUTO_SERVICE_INDEX);
+            readServicesFromDB(Constants.AUTO_SERVICE_INDEX);
         } else if (id == R.id.nav_beautySalon) {
-            readServicesFromDB(BEAUTY_SALON_INDEX);
+            readServicesFromDB(Constants.BEAUTY_SALON_INDEX);
 
         } else if (id == R.id.nav_fastFood) {
-            readServicesFromDB(FAST_FOOD_INDEX);
+            readServicesFromDB(Constants.FAST_FOOD_INDEX);
 
         } else if (id == R.id.nav_pharmacy) {
-            readServicesFromDB(PHARMACY_INDEX);
+            readServicesFromDB(Constants.PHARMACY_INDEX);
 
         } else if (id == R.id.nav_Photo) {
-            readServicesFromDB(PHOTO_INDEX);
+            readServicesFromDB(Constants.PHOTO_INDEX);
 
         } else if (id == R.id.nav_Shop) {
-            readServicesFromDB(SHOP_INDEX);
+            readServicesFromDB(Constants.SHOP_INDEX);
 
         } else if (id == R.id.nav_Tailor) {
-            readServicesFromDB(TAILOR_INDEX);
+            readServicesFromDB(Constants.TAILOR_INDEX);
 
         } else if (id == R.id.nav_watchmaker) {
-            readServicesFromDB(WATCHMAKER_INDEX);
+            readServicesFromDB(Constants.WATCHMAKER_INDEX);
 
         } else if (id == R.id.nav_send) {
 
+            //TODO avelacnel favoritnern
         } else if (id == R.id.nav_add) {
 
             Intent i = new Intent(MainActivity.this, MapLocationActivity.class);
@@ -212,12 +195,12 @@ public class MainActivity extends FragmentActivity
                     if (flag) {
 
                         CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
-                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(ZOOM_LEVEL);
+                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(Constants.ZOOM_LEVEL);
 
                         mMap.moveCamera(center);
                         mMap.animateCamera(zoom);
                         flag = false;
-                        if(lastSearchedService > 0){
+                        if(lastSearchedService != 0){
                             readServicesFromDB(lastSearchedService);
                         }
                     }
@@ -250,9 +233,10 @@ public class MainActivity extends FragmentActivity
             return;
         }
 
-        Service service = serviceTypeDetector(serviceIndex);
+        Service service = new Service();
         realm.beginTransaction();
-        RealmResults realmResults = realm.where((Class) service.getClass()).findAll();
+        //Dog myDog = realm.where(Dog.class).equalTo("age", 1).findFirst();
+        RealmResults realmResults = realm.where(Service.class).equalTo("imageResource", serviceIndex).findAll();
 
         if (realmResults.isEmpty()) {
             realm.commitTransaction();
@@ -267,11 +251,13 @@ public class MainActivity extends FragmentActivity
         int servicesOutOfRange = 0;
         for (int i = 0; i < realmResults.size(); ++i) {
             service = (Service) realmResults.get(i);
-            if (service.distanceFromUser(userLatLang) < RADIUS) {
+            if (service.distanceFromUser(userLatLang) < Constants.RADIUS) {
+                final LatLng servicePosition = new LatLng(service.getLatitude(), service.getLongitude());
+
+
                 MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(service.getPosition());
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(
-                        (int)service.getInfo("imageResource")));
+                markerOptions.position(new LatLng(service.getLatitude(), service.getLongitude()));
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(service.getImageResource()));
                 Marker mServiceMarker = mMap.addMarker(markerOptions);
                 mServiceMarker.setDraggable(false);
                 mServiceMarker.setTag(service);
@@ -287,16 +273,11 @@ public class MainActivity extends FragmentActivity
                             LatLng userLatLang = new LatLng(userLatitude, userLongitude);
 
                             MarkersDialogBox markersDialogBox = new MarkersDialogBox(
-                                    marker.getPosition(), userLatLang,
-                                    (String)markerInfo.getInfo("name"),
-                                    (String)markerInfo.getInfo("address"),
-                                    (String)markerInfo.getInfo("description"),
-                                    (int)markerInfo.getInfo("imageResource"),
-                                    Float.valueOf((String)markerInfo.getInfo("rating")),
-                                    MainActivity.this,
-                                    markerInfo.distanceFromUser(userLatLang));
+                                    servicePosition, userLatLang, markerInfo.getName(),
+                                    markerInfo.getAddress(), markerInfo.getDescription(),
+                                    markerInfo.getImageResource(), markerInfo.getRating(),
+                                    MainActivity.this, markerInfo.distanceFromUser(userLatLang));
                             markersDialogBox.show();
-
                             return false;
                         }
                     });
@@ -311,29 +292,6 @@ public class MainActivity extends FragmentActivity
             Toast.makeText(MainActivity.this, "Out of range services: " + servicesOutOfRange , Toast.LENGTH_SHORT).show();
 
         realm.commitTransaction();
-    }
-
-    public static Service serviceTypeDetector(int i) {
-        switch (i) {
-            case MainActivity.AUTO_SERVICE_INDEX:
-                return new AutoService();
-            case MainActivity.BEAUTY_SALON_INDEX:
-                return new BeautySalon();
-            case MainActivity.FAST_FOOD_INDEX:
-                return new FastFood();
-            case MainActivity.PHARMACY_INDEX:
-                return new Pharmacy();
-            case MainActivity.PHOTO_INDEX:
-                return new Photo();
-            case MainActivity.SHOP_INDEX:
-                return new Shop();
-            case MainActivity.TAILOR_INDEX:
-                return new Tailor();
-            case MainActivity.WATCHMAKER_INDEX:
-                return new Watchmaker();
-            default:
-                return new AutoService();
-        }
     }
 
 
@@ -353,8 +311,6 @@ public class MainActivity extends FragmentActivity
 
         @Override
         public View getInfoContents(Marker marker) {
-
-            //TODO avelacnel te ani metr e heru amenamotik servisi infowindown bacel avtomat kam et ge direction@ kani avtomat
 
             LinearLayout markersLinearLayout = (LinearLayout) myContentsView.findViewById(R.id.markersLayout);
             markersLinearLayout.setBackgroundColor(getResources().getColor(R.color.forMarkersLayot));
