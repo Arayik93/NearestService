@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -70,6 +71,8 @@ public class MapLocationActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_location_activity);
+
+        Firebase.setAndroidContext(this);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -388,26 +391,31 @@ public class MapLocationActivity extends AppCompatActivity
     }
 
     @Override
-    public void addButtonOnAddFragmentPressed(int serviceIndex, String[] params) {
+    public void addButtonOnAddFragmentPressed(String serviceIndex, String[] params) {
 
         params = nullChecker(params);
-        serviceIndex = imageResourceGenerator(serviceIndex);
-        Service service = new Service(params[0],params[1], params[2],
-                mCurrLocationMarker.getPosition().latitude,
-                mCurrLocationMarker.getPosition().longitude, serviceIndex);
+//        serviceIndex = imageResourceGenerator(serviceIndex);
+//        Service service = new Service(params[0],params[1], params[2],
+//                mCurrLocationMarker.getPosition().latitude,
+//                mCurrLocationMarker.getPosition().longitude, serviceIndex);
 
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        RealmResults rel = realm.where(Service.class).findAll();
-        int id = 1;
-        if (rel.size() != 0) {
-            Service serviceFromDB = (Service) rel.last();
-            id = serviceFromDB.getId() + 1;
-        }
-        service.setId(id);
-        realm.copyToRealm(service);
-        realm.commitTransaction();
+        example.com.nearestservice.Models.Service service = new example.com.nearestservice.Models.Service(params[0],
+                params[2],params[1],2,mCurrLocationMarker.getPosition().latitude, mCurrLocationMarker.getPosition().longitude, serviceIndex);
+
+//        Realm realm = Realm.getDefaultInstance();
+//        realm.beginTransaction();
+//        RealmResults rel = realm.where(Service.class).findAll();
+//        int id = 1;
+//        if (rel.size() != 0) {
+//            Service serviceFromDB = (Service) rel.last();
+//            id = serviceFromDB.getId() + 1;
+//        }
+//        service.setId(id);
+//        realm.copyToRealm(service);
+//        realm.commitTransaction();
         //TODO Nare ete harmar es gtnum avelacra
+        Firebase firebase = new Firebase(Constants.FIREBASE_URL).child("services");
+        firebase.push().setValue(service);
         //Toast.makeText(MapLocationActivity.this, params[0]+ "barehajox avelacvel a", Toast.LENGTH_SHORT).show();
         finish();
 

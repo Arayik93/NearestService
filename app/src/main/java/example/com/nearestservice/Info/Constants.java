@@ -1,5 +1,6 @@
 package example.com.nearestservice.Info;
 
+import example.com.nearestservice.BuildConfig;
 import example.com.nearestservice.R;
 
 /**
@@ -19,4 +20,6 @@ public class Constants {
     public static final int ZOOM_LEVEL = 14;
 
     public static final float RADIUS = 0.01f;
+
+    public static  final String FIREBASE_URL  = BuildConfig.UNIQUE_FIREBASE_ROOT_URL;
 }

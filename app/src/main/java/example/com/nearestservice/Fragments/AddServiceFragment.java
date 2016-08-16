@@ -7,10 +7,22 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import example.com.nearestservice.Info.Constants;
+import example.com.nearestservice.Models.Category;
+import example.com.nearestservice.Models.Service;
 import example.com.nearestservice.R;
 
 public class AddServiceFragment extends Fragment implements View.OnClickListener {
@@ -21,6 +33,7 @@ public class AddServiceFragment extends Fragment implements View.OnClickListener
     private Spinner mSpinner;
     private TextView name_edt;
     private TextView description_edt;
+    Firebase firebase;
 
     public AddServiceFragment() {
     }
@@ -28,6 +41,7 @@ public class AddServiceFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        firebase  = new Firebase(Constants.FIREBASE_URL).child("categories");
         try {
             mOnFragmentInteractionListener = (OnFragmentInteractionListener) getActivity();
         } catch (ClassCastException e) {
@@ -60,8 +74,31 @@ public class AddServiceFragment extends Fragment implements View.OnClickListener
         view.findViewById(R.id.button_save_activityAddService).setOnClickListener(this);
 
         view.findViewById(R.id.button_cancel_activityAddService).setOnClickListener(this);
-    }
 
+//       final List<String> spinnerArray =  new ArrayList<String>();
+//
+//        firebase.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for(DataSnapshot categories : dataSnapshot.getChildren()) {
+//                    Category cat = categories.getValue(Category.class);
+//                    spinnerArray.add(cat.getName());
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
+//
+//
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+//                getActivity(), android.R.layout.simple_spinner_item, spinnerArray);
+//
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        mSpinner.setAdapter(adapter);
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -90,10 +127,16 @@ public class AddServiceFragment extends Fragment implements View.OnClickListener
         switch (viewId) {
             case R.id.button_save_activityAddService:
                 mOnFragmentInteractionListener.addButtonOnAddFragmentPressed(
-                        mSpinner.getSelectedItemPosition(), new String[]{
+                        mSpinner.getSelectedItem().toString(),
+                        new String[]{
                                 name_edt.getText().toString(),
                                 address_edt.getText().toString(),
-                                description_edt.getText().toString()});
+                                description_edt.getText().toString()
+                        }
+                );
+
+
+
                 break;
             case R.id.button_cancel_activityAddService:
                 mOnFragmentInteractionListener.cancelButtonOnAddFragmentPressed();
@@ -102,11 +145,10 @@ public class AddServiceFragment extends Fragment implements View.OnClickListener
         }
     }
 
-
     public interface OnFragmentInteractionListener {
 
         void cancelButtonOnAddFragmentPressed();
 
-        void addButtonOnAddFragmentPressed(int serviceIndex, String[] params);
+        void addButtonOnAddFragmentPressed(String serviceIndex, String[] params);
     }
 }
