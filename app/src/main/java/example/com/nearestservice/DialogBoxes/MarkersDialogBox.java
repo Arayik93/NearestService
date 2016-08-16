@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.text.DecimalFormat;
 import example.com.nearestservice.R;
 import example.com.nearestservice.Services.FavoriteService;
+import example.com.nearestservice.Services.Service;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
@@ -33,19 +34,17 @@ public class MarkersDialogBox extends Dialog implements View.OnClickListener{
     private Activity mActivity;
     private double distance;
 
-    public MarkersDialogBox(LatLng servicePosition, LatLng userPosition,String name, String address,
-                            String description, int imageResource, float rating, Activity activity,
-                            double distance) {
+    public MarkersDialogBox(LatLng userPosition, Service service, Activity activity) {
         super(activity);
-        this.name = name;
-        this.address = address;
-        this.description = description;
-        this.imageResource = imageResource;
-        this.rating = rating;
+        this.name = service.getName();
+        this.address = service.getAddress();
+        this.description = service.getDescription();
+        this.imageResource = service.getImageResource();
+        this.rating = service.getRating();
         this.mActivity = activity;
         this.userPosition = userPosition;
-        this.servicePosition = servicePosition;
-        this.distance = distance;
+        this.servicePosition = new LatLng(service.getLatitude(), service.getLongitude());
+        this.distance = service.distanceFromUser(userPosition);
     }
 
     @Override
