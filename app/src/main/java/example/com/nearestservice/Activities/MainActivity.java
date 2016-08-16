@@ -18,6 +18,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,6 +35,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import example.com.nearestservice.DialogBoxes.MarkersDialogBox;
 import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.Info.Constants;
+import example.com.nearestservice.Models.Category;
 import example.com.nearestservice.R;
 import example.com.nearestservice.Services.Service;
 
@@ -49,7 +54,9 @@ public class MainActivity extends FragmentActivity
 
 
     private Realm realm;
+    private Firebase firebase;
     private GoogleMap mMap;
+    NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +67,9 @@ public class MainActivity extends FragmentActivity
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this).build();
         Realm.setDefaultConfiguration(realmConfiguration);
         realm = Realm.getDefaultInstance();
+
+        Firebase.setAndroidContext(this);
+        firebase = new Firebase(Constants.FIREBASE_URL).child("categories");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -83,7 +93,7 @@ public class MainActivity extends FragmentActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
     }
@@ -99,11 +109,34 @@ public class MainActivity extends FragmentActivity
         }
     }
 
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        firebase.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for(DataSnapshot categories : dataSnapshot.getChildren()) {
+//                    Category cat = categories.getValue(Category.class);
+//                    navigationView.getMenu().add(cat.getName()).setIcon(android.R.drawable.ic_menu_add);
+//                }
+//            }
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//            }
+//        });
+//        menu.add("DFDsfdg");
+//        return super.onCreateOptionsMenu(menu);
+//    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+
+        menu.add("Email");
+
+        return super.onCreateOptionsMenu(menu);
     }
+
 
     //TODO action bar
     @Override
@@ -126,33 +159,34 @@ public class MainActivity extends FragmentActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_autoservice) {
-            readServicesFromDB(Constants.AUTO_SERVICE_INDEX);
-        } else if (id == R.id.nav_beautySalon) {
-            readServicesFromDB(Constants.BEAUTY_SALON_INDEX);
+//        if (id == R.id.nav_autoservice) {
+//            readServicesFromDB(Constants.AUTO_SERVICE_INDEX);
+//        } else if (id == R.id.nav_beautySalon) {
+//            readServicesFromDB(Constants.BEAUTY_SALON_INDEX);
+//
+//        } else if (id == R.id.nav_fastFood) {
+//            readServicesFromDB(Constants.FAST_FOOD_INDEX);
 
-        } else if (id == R.id.nav_fastFood) {
-            readServicesFromDB(Constants.FAST_FOOD_INDEX);
-
-        } else if (id == R.id.nav_pharmacy) {
-            readServicesFromDB(Constants.PHARMACY_INDEX);
-
-        } else if (id == R.id.nav_Photo) {
-            readServicesFromDB(Constants.PHOTO_INDEX);
-
-        } else if (id == R.id.nav_Shop) {
-            readServicesFromDB(Constants.SHOP_INDEX);
-
-        } else if (id == R.id.nav_Tailor) {
-            readServicesFromDB(Constants.TAILOR_INDEX);
-
-        } else if (id == R.id.nav_watchmaker) {
-            readServicesFromDB(Constants.WATCHMAKER_INDEX);
-
-        } else if (id == R.id.nav_send) {
-
-            //TODO avelacnel favoritnern
-        } else if (id == R.id.nav_add) {
+//        } else if (id == R.id.nav_pharmacy) {
+//            readServicesFromDB(Constants.PHARMACY_INDEX);
+//
+//        } else if (id == R.id.nav_Photo) {
+//            readServicesFromDB(Constants.PHOTO_INDEX);
+//
+//        } else if (id == R.id.nav_Shop) {
+//            readServicesFromDB(Constants.SHOP_INDEX);
+//
+//        } else if (id == R.id.nav_Tailor) {
+//            readServicesFromDB(Constants.TAILOR_INDEX);
+//
+//        } else if (id == R.id.nav_watchmaker) {
+//            readServicesFromDB(Constants.WATCHMAKER_INDEX);
+//
+//        } else if (id == R.id.nav_send) {
+//
+//            //TODO avelacnel favoritnern
+//        } else
+        if (id == R.id.nav_add) {
 
             Intent i = new Intent(MainActivity.this, MapLocationActivity.class);
             startActivity(i);
@@ -272,11 +306,8 @@ public class MainActivity extends FragmentActivity
                             Service markerInfo = (Service) marker.getTag();
                             LatLng userLatLang = new LatLng(userLatitude, userLongitude);
 
-                            MarkersDialogBox markersDialogBox = new MarkersDialogBox(
-                                    servicePosition, userLatLang, markerInfo.getName(),
-                                    markerInfo.getAddress(), markerInfo.getDescription(),
-                                    markerInfo.getImageResource(), markerInfo.getRating(),
-                                    MainActivity.this, markerInfo.distanceFromUser(userLatLang));
+                            MarkersDialogBox markersDialogBox = new MarkersDialogBox(userLatLang,
+                                    markerInfo, MainActivity.this);
                             markersDialogBox.show();
                             return false;
                         }
