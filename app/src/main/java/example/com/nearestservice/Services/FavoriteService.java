@@ -1,5 +1,7 @@
 package example.com.nearestservice.Services;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import io.realm.RealmModel;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -97,4 +99,8 @@ public class FavoriteService implements RealmModel {
         this.imageResource = imageResource;
     }
 
+    public double distanceFromUser(LatLng usersPosition) {
+        return Math.sqrt((usersPosition.latitude - this.latitude) * (usersPosition.latitude - this.latitude) +
+                (usersPosition.longitude - this.longitude) * (usersPosition.longitude - this.longitude));
+    }
 }
