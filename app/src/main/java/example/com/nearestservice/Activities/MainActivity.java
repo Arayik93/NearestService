@@ -50,6 +50,7 @@ public class MainActivity extends FragmentActivity
 
     int a = 100;
 int b = 100;
+    int k =100;
 
 
 
@@ -60,6 +61,7 @@ int b = 100;
     private boolean flag = true;
     private int lastSearchedService = 0;
     int s;
+    int aa;
 
     private Realm realm;
     private GoogleMap mMap;
