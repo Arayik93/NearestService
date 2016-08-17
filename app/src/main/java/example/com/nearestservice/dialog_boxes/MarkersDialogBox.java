@@ -1,4 +1,4 @@
-package example.com.nearestservice.DialogBoxes;
+package example.com.nearestservice.dialog_boxes;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -19,8 +19,8 @@ import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
 import java.text.DecimalFormat;
 import example.com.nearestservice.R;
-import example.com.nearestservice.Services.FavoriteService;
-import example.com.nearestservice.Services.Service;
+import example.com.nearestservice.services.FavoriteService;
+import example.com.nearestservice.services.Service;
 import io.realm.Realm;
 import io.realm.RealmResults;
 

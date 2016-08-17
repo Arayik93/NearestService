@@ -1,4 +1,4 @@
-package example.com.nearestservice.Fragments;
+package example.com.nearestservice.fragments;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -7,22 +7,13 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import example.com.nearestservice.Info.Constants;
-import example.com.nearestservice.Models.Category;
-import example.com.nearestservice.Models.Service;
+import example.com.nearestservice.info.Constants;
 import example.com.nearestservice.R;
 
 public class AddServiceFragment extends Fragment implements View.OnClickListener {

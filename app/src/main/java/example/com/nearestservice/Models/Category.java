@@ -1,4 +1,4 @@
-package example.com.nearestservice.Models;
+package example.com.nearestservice.models;
 
 /**
  * Created by Narehh on 8/14/2016.

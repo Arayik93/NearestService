@@ -1,4 +1,4 @@
-package example.com.nearestservice.DialogBoxes;
+package example.com.nearestservice.dialog_boxes;
 
 import android.app.Activity;
 import android.app.Dialog;
