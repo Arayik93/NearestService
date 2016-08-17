@@ -1,4 +1,5 @@
 package example.com.nearestservice.Activities;
+//7
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -48,7 +49,7 @@ public class MainActivity extends FragmentActivity
 
 
     int a = 100;
-
+int b = 100;
 
 
 
