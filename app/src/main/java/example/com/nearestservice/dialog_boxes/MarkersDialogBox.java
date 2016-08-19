@@ -19,8 +19,8 @@ import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
 import java.text.DecimalFormat;
 import example.com.nearestservice.R;
-import example.com.nearestservice.services.FavoriteService;
-import example.com.nearestservice.services.Service;
+import example.com.nearestservice.Services.FavoriteService;
+import example.com.nearestservice.Services.Service;
 import io.realm.Realm;
 import io.realm.RealmResults;
 

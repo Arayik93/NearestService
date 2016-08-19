@@ -42,9 +42,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import example.com.nearestservice.models.Service;
 import example.com.nearestservice.dialog_boxes.GPS_And_WiFi_Dialog_Box;
-import example.com.nearestservice.fragments.AddServiceFragment;
-import example.com.nearestservice.info.Constants;
+import example.com.nearestservice.Fragments.AddServiceFragment;
+import example.com.nearestservice.Info.Constants;
 import example.com.nearestservice.R;
 
 
@@ -395,7 +396,7 @@ public class MapLocationActivity extends AppCompatActivity
 //                mCurrLocationMarker.getPosition().latitude,
 //                mCurrLocationMarker.getPosition().longitude, serviceIndex);
 
-        example.com.nearestservice.models.Service service = new example.com.nearestservice.models.Service(params[0],
+               Service service = new Service(params[0],
                 params[2],params[1],2,mCurrLocationMarker.getPosition().latitude, mCurrLocationMarker.getPosition().longitude, serviceIndex);
 
 //        Realm realm = Realm.getDefaultInstance();

@@ -1,4 +1,4 @@
-package example.com.nearestservice.fragments;
+package example.com.nearestservice.Fragments;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.firebase.client.Firebase;
 
-import example.com.nearestservice.info.Constants;
+import example.com.nearestservice.Info.Constants;
 import example.com.nearestservice.R;
 
 public class AddServiceFragment extends Fragment implements View.OnClickListener {

@@ -1,4 +1,4 @@
-package example.com.nearestservice.Activities;
+package example.com.nearestservice.activities;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,10 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,10 +29,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import example.com.nearestservice.DialogBoxes.MarkersDialogBox;
-import example.com.nearestservice.DialogBoxes.GPS_And_WiFi_Dialog_Box;
+import example.com.nearestservice.dialog_boxes.MarkersDialogBox;
+import example.com.nearestservice.dialog_boxes.GPS_And_WiFi_Dialog_Box;
 import example.com.nearestservice.Info.Constants;
-import example.com.nearestservice.Models.Category;
 import example.com.nearestservice.R;
 import example.com.nearestservice.Services.Service;
 

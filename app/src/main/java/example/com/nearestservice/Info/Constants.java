@@ -1,4 +1,4 @@
-package example.com.nearestservice.info;
+package example.com.nearestservice.Info;
 
 import example.com.nearestservice.BuildConfig;
 import example.com.nearestservice.R;
