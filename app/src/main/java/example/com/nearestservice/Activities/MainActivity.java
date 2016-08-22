@@ -47,7 +47,7 @@ public class MainActivity extends FragmentActivity
     private double userLongitude;
     private boolean flag = true;
     private int lastSearchedService = 0;
-
+int d;
 
     private Realm realm;
     private Firebase firebase;
